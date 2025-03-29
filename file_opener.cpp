@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <stdio.h>
+#include "scanner.h"
 using namespace std;
 
 int main(int argc, char** argv)
@@ -34,8 +35,8 @@ int main(int argc, char** argv)
         {
             fread(buffer, sizeof(char), file_size, fp);
             // contents of test.cpp copied into buffer
-            // scanner(buffer); 
-            // to be defined soon
+            scanner(buffer); 
+            //called from scanner.h
 
             cout<<"Compiled Successfully!";
         }
