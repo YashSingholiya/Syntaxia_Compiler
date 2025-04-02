@@ -1,0 +1,9 @@
+to download make:
+mingw-get install mingw32-make
+
+to verify:
+mingw32-make --version
+
+
+why make is important:
+https://youtu.be/yWLkyN_Satk?si=H3e_CHSLrhRaCDuw
