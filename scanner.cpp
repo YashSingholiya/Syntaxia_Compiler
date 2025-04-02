@@ -19,7 +19,7 @@ int bracecount =0;
 // all function prototypes
 static bool end_of_file();
 static void skip_whitespace();
-void generateToken(TokenType type);
+static void generateToken(TokenType type);
 static bool isNum(char ch);
 static void keywordToken();
 static void charToken();
@@ -417,3 +417,92 @@ static void checkField(int type)
             // and (} is not allowed by c++
     }
 }
+
+
+//Generate token function used to process data before
+// MakeToken function finally called to create the actual token
+// We shall process the kind of tokens that actually store data
+// which are: TOKEN_NUMBER; TOKEN_IDENTIFIER; TOKEN_FUN, TOKEN_FUNCALL, TOKEN_STRING
+TokenType previousToken;
+static void generateToken(TokenType type)
+{
+    string tokenData = "";
+    
+    if(type == TOKEN_NUMBER)
+    {
+        while( !(end_of_file()) && (isNum(*token))  )
+        {
+            tokenData = tokenData + token[0];
+            token++;
+        }
+        token--;
+        // we always want the pointer on last character, as scanner function also has a token++ in it
+
+        if(end_of_file())
+        {
+            error("Unexpected end of file on line ", line);
+        }
+        else 
+        {
+            makeToken(tokenData, TOKEN_NUMBER);
+        }
+
+    }
+    else if(type == TOKEN_INFINITE)
+    {
+        tokenData = "1";
+        // 1 is used for infinite loop- while(1)
+        makeToken(tokenData, TOKEN_NUMBER);
+
+        // It is easier to work with numbers than it is with symbols, as we shall see
+        // so we have done it this way
+    }
+    else if(type == TOKEN_STRING)
+    {
+        // we keep going ahead till we reach end of file or closing quotes
+        while((!end_of_file()) && (*token != '"'))
+        {
+            tokenData = tokenData + token[0];
+            token++;
+        }
+
+        if(token[0] == '"')
+        {
+            makeToken(tokenData, TOKEN_STRING);
+        }
+    }
+    else if(type == TOKEN_IDENTIFIER)
+    {
+        // as long as all that follows is either alphabet on number or _
+        // we are still discussing the same identifier as per c++ rules
+        while((!end_of_file())  && ( (isNum(*token))  || isAlphabet(*token))  || *token == '_')
+        {
+            tokenData = tokenData + token[0];
+            token++;
+        }
+        token--; // very Important
+        
+        if(end_of_file())
+        {
+            error("Unterminated identifier on line ", line);
+        }
+        else
+        {
+            // case 1: funcion declaration
+            if(token[1] == '(' && ((previousToken == TOKEN_VAR) || (previousToken == TOKEN_BOOL) || (previousToken == TOKEN_VOID) || (previousToken == TOKEN_STRING)))
+            {
+                // int abc() or bool abc() or void abc() or string abc() 
+                makeToken(tokenData, TOKEN_FUNCALL);
+            }
+            // case 2: function call
+            else if(token[1] == '(') makeToken(tokenData, TOKEN_FUNCALL)
+            // ex. scanner() vs void scanner()
+
+            else makeToken(tokenData, TOKEN_IDENTIFIER);
+
+            // This was done because its clearly very important 
+        }
+    }
+}
+
+
