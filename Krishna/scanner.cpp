@@ -1,5 +1,5 @@
 #include  <bits/stdc++.h>
-#include "tokens.h"
+#include "parser.h"
 using namespace std;
 // Note:
 // There are 4 groups the scanner/ lexical analyser searches for:
@@ -8,6 +8,11 @@ using namespace std;
 // Alphabets- Keywords and Identifiers
 // All other tokens will be treated as error
 
+void error(string error, int lineNum)
+{
+    cout<<error<<" "<<lineNum<<endl;
+    exit(1);
+}
 
 char* token;
 int line =1; //stores the line where the token occurs. Useful to report errors too
@@ -25,6 +30,7 @@ static void keywordToken();
 static void charToken();
 static bool isAlphabet(char ch);
 void makeToken(TokenType type);
+void makeToken(string tokenData, TokenType type);
 
 
 void scanner(char * buffer)
@@ -495,7 +501,7 @@ static void generateToken(TokenType type)
                 makeToken(tokenData, TOKEN_FUNCALL);
             }
             // case 2: function call
-            else if(token[1] == '(') makeToken(tokenData, TOKEN_FUNCALL)
+            else if(token[1] == '(') makeToken(tokenData, TOKEN_FUNCALL);
             // ex. scanner() vs void scanner()
 
             else makeToken(tokenData, TOKEN_IDENTIFIER);
@@ -506,3 +512,49 @@ static void generateToken(TokenType type)
 }
 
 
+// Finally, the makeToken function
+int token_line =1;
+// This is the line_number of token in the tokens.txt file
+// remember, line is the line token is on in test.cpp
+void writeFile(string Data);
+
+void makeToken(TokenType type)
+{
+    string code = "(" + to_string(token_line) + ").  " + tokenNames[type] + "->" + to_string(line);
+    token_line++;
+    writeFile(code);
+    // sendToParser(type, line);
+    previousToken = type;
+}
+void makeToken(string tokenData, TokenType type)
+{
+    if(tokenData == "") tokenData = " ";
+
+    string code = "(" + to_string(token_line) + ").  " + tokenNames[type] + "->" + to_string(line) + "->" + tokenData;
+    token_line++;
+    writeFile(code);
+    // sendToParser(type, line, tokenData);
+    previousToken = type;
+}
+int deleteOld = 0;//this is to delete any old file if present already, having same purpose
+void writeFile(string Data)
+{
+    int len = Data.length();
+    char char_array[len+1];
+    strcpy(char_array, Data.c_str());
+
+    FILE * fp;
+    if(deleteOld == 0)
+    {
+        deleteOld++;
+        if(fp == fopen("tokens.txt","r"))
+        {
+            fclose(fp);
+            if(remove("tokens.txt") == 0){}
+        }
+    }
+    fp = fopen("tokens.txt", "a");
+    fputs(char_array, fp);
+    fputs("\n", fp);
+    fclose(fp);
+}

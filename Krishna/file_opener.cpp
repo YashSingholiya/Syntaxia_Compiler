@@ -8,7 +8,7 @@ int main(int argc, char** argv)
     char * source_file = argv[1];
 
     FILE * fp;
-    fp = fopen(source_file, "r");
+    fp = fopen("test.cpp", "r");
 
     if(!fp)
     {
