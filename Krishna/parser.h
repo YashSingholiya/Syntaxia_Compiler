@@ -4,6 +4,7 @@ using namespace std;
 #include <string>
 #include "string.h"
 const int MAX = 100000;
+// This is the maximum number of tokens
 
 // token:smallest definable unit in programming language syntax
 // '\0' is TOKEN_EOF - located at end of every file - marks end of scanning process
@@ -46,6 +47,7 @@ TOKEN_EOF
 }TokenType;
 
 
+// This is the enumerated tokens with all their names written down for convenience
 string tokenNames[] = {
     "TOKEN_EQUAL",  "TOKEN_LOGICAL_OR", "TOKEN_LOGICAL_AND", "TOKEN_EQUAL_EQUAL", 
     "TOKEN_GREATER","TOKEN_GREATER_EQUAL",  "TOKEN_LESS", 
@@ -83,8 +85,54 @@ string tokenNames[] = {
      "TOKEN_PRINT", "TOKEN_RETURN", "TOKEN_WHILE", "TOKEN_HYPHEN",
      "TOKEN_ERROR", "TOKEN_COUT","TOKEN_GOTO", "TOKEN_EOF"
     };
-// void sendToParser(TokenType type, int line,string numToken );
-// void sendToParser(TokenType type, int line);
-// void error(string error, int lineNum);
+
+
+// tokenClass basically is going to store all the tokens we will parse
+class tokenClass{
+    public:
+        TokenType type;
+
+        string identifier;
+        // stores data of token for ex. int jump() so stores jump
+        int lineNum;
+
+        tokenClass(TokenType type, int line)
+        {
+            this->lineNum = line;
+            this->type = type;
+        }
+
+        tokenClass(TokenType type, int line, string identifier)
+        {
+            this->type = type;
+            this->lineNum = line;
+            this->identifier = identifier;
+        }
+
+        friend class SymbolTable;
+        // this means that class SymbolTable can actually access the private 
+        // and protected members of this class too
+};
+
+
+class SymbolTable{
+    public:
+        tokenClass *    tokenTable[MAX];
+        // is an array of pointers to tokenClass objects
+
+        int index;
+        SymbolTable()
+        {
+            index =1;
+
+            for(int i =0; i<MAX; i++) tokenTable[i] = NULL;
+            // now all pointers point to null
+
+        }
+};
+
+void sendToParser(TokenType type, int line,string numToken );
+void sendToParser(TokenType type, int line);
+void error(string error, int lineNum);
 
 #endif

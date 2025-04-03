@@ -1,0 +1,15 @@
+1. There are typically 2 types of compilers,
+one where the scanner scans tokens and simultaneously sends
+them over to parser...and one where all tokens are generated
+first and then passed on to scanner. Ours is second type.
+
+2.Friend CLasses
+A friend class in C++ is a class that is given special 
+access to the private and protected members of another class.
+When to Use Friend Classes?
+When two classes need a tight relationship (e.g., a SymbolTable managing a tokenClass).
+When efficiency is more important than strict encapsulation.
+When you need controlled access to private data without exposing it publicly.
+
+example in Parser.h in class tokenClass
+

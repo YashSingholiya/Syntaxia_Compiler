@@ -495,10 +495,10 @@ static void generateToken(TokenType type)
         else
         {
             // case 1: funcion declaration
-            if(token[1] == '(' && ((previousToken == TOKEN_VAR) || (previousToken == TOKEN_BOOL) || (previousToken == TOKEN_VOID) || (previousToken == TOKEN_STRING)))
+            if((token[1] == '(') && ((previousToken == TOKEN_VAR) || (previousToken == TOKEN_BOOL) || (previousToken == TOKEN_VOID) || (previousToken == TOKEN_STRING)))
             {
                 // int abc() or bool abc() or void abc() or string abc() 
-                makeToken(tokenData, TOKEN_FUNCALL);
+                makeToken(tokenData, TOKEN_FUN);
             }
             // case 2: function call
             else if(token[1] == '(') makeToken(tokenData, TOKEN_FUNCALL);
@@ -513,11 +513,11 @@ static void generateToken(TokenType type)
 
 
 // Finally, the makeToken function
+
 int token_line =1;
 // This is the line_number of token in the tokens.txt file
 // remember, line is the line token is on in test.cpp
 void writeFile(string Data);
-
 void makeToken(TokenType type)
 {
     string code = "(" + to_string(token_line) + ").  " + tokenNames[type] + "->" + to_string(line);
