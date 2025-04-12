@@ -87,10 +87,87 @@ string tokenNames[] = {
     };
 
 
+class funcList{
+// stores all lists of functions in our compiler
+    public:   
+    string Fname;
+    // name of function
+    int An, Vn, Vs,  As;
+    // An- number of arguements it has
+    // Vn- number of local variables the function has
+    // Vs-index of the local variable in class lVList where the local var. STARTS
+    // As- index of the arguement in class ArguementList where the Arguement STARTS
+    int call = 0;
+    funcList(int An, string Fname, int Vn, int Vs, int As, int call)
+    {
+        this->An   = An;
+        this->Fname        = Fname; 
+        this->Vn   = Vn;  
+        this->Vs   = Vs;               
+        this->As   = As; 
+        this->call = call;                 
+    }
+    friend class SymbolTable; 
+};
+
+// basically, we need to know the index where we started registering the args of a list
+// and these args, so we can directly access that arg instead of searching the whole list
+
+class lVList{
+// stores the list of local variables 
+    public:  
+        string  Vname;
+        TokenType vType;
+        int vNo;
+        // this serial number is used to assign registers during code generation
+        lVList(TokenType vType, string Vname, int vNo)
+        {
+            this->vType  = vType;
+            this->Vname  = Vname;
+            this->vNo    = vNo;
+        }
+        friend class SymbolTable; 
+};
+
+class gVList{
+// stores all the global variables
+    public:  
+        string  Gname;
+        TokenType vType;
+        gVList(TokenType vType, string Gname)
+        {
+            this->vType  = vType;
+            this->Gname  = Gname;
+        }
+        friend class SymbolTable;
+
+};
+
+class ArguementList{
+// stores all arguements of functions
+    TokenType argType;
+    string  argName;
+    int  argNo;
+
+    ArgumentList(TokenType argType, string argName, int argNo)
+    {
+        this->argType        = argType;
+        this->argName        = argName;
+        this->argNo          = argNo;
+    }
+    friend class SymbolTable; 
+};
+
+
+
 // tokenClass basically is going to store all the tokens we will parse
 class tokenClass{
     public:
         TokenType type;
+        TokenType Vtype;
+        // this stores identifier type and makes our life easier
+        string regName;
+        // stores the name of register in which you want to store your variable data
 
         string identifier;
         // stores data of token for ex. int jump() so stores jump
@@ -122,13 +199,37 @@ class SymbolTable{
         // this array basically points to ALL tokens we make..
         // and all of these tokens will be of type tokenClass
 
+        funcList * funcTable[MAX];
+        tokenClass* expressList[MAX];
+        lVList * localVariable[MAX];
+        gVList * globalVariable[MAX];
+        ArguementList * ArguementTable[MAX];
+
+
         int index;
+        int indexA, indexV,indexE, indexG, indexL;
+        // Arguement,   , Expression, Global Var,  
         SymbolTable()
         {
             index =1;
+            indexA =1;
+            indexV =1;
+            indexE =1;
+            indexG =1;
+            indexL =1;
 
-            for(int i =0; i<MAX; i++) tokenTable[i] = NULL;
-            // now all pointers point to null
+
+            for(int i =0; i<MAX; i++) 
+            {
+                tokenTable[i] = NULL;
+                // now all pointers point to null
+                expressList[i] = NULL;
+                funcTable[i] = NULL;
+                localVariable[i] = NULL;
+                globalVariable[i] = NULL;
+                ArguementTable[i] = NULL;
+
+            }
 
         }
 };
