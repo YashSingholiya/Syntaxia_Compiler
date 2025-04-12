@@ -49,3 +49,15 @@ and doing its actual main task:
     bool expect(TokenType typeA,TokenType typeB, int count); etc.
 which are defined in semantics.cpp (?)
 
+The parser basically encounters all the different tokens and 
+differentiates them using if statements and the for each of them calls 
+a semantic function.
+semantic functions called here include:
+    expression(pointer, TOKEN_SEMICOLON);
+    c_varDeclaration(pointer);
+    c_cout(pointer);
+    c_while(pointer);  
+    and so on
+
+After this the semantic analysis begins.
+
