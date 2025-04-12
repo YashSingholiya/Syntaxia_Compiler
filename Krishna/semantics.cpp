@@ -43,6 +43,23 @@ bool expect(TokenType typeA, int count)
 
 
 int deleteOld = 0;
+
+string saveG[12]       = {"g8", "g9", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "g25", "g26", "g27"};
+// to save global variables
+string argV[8]         = {"x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17"};
+// to save arguements
+string saveV[12]       = { "x9", "x18", "x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27"};
+// saved variable registers
+string tempV[7]        = {"x5", "x6", "x7", "x28", "x29", "x30", "x31"};
+// temporary variable registers storage
+string instruction[19] = { "add","sub", "div","mod", "mul", "or", "xor", "and", "or",
+                         "xor", "and", "sll", "srl", "not", "add", "sub", "div", "mod", "mul"};
+// stores all the arithmetic expression our compiler will support in ORDER of precedence
+// deals with TOKEN_ADD_ASS to TOKEN_STAR
+string branch[9]       = { "ld", "0", "0", "bne","ble", "blt", "bge", "bgt", "beq"};
+// deals with TOKEN_EQUAL to TOKEN_BANG
+// "0", "0" because tokens logical OR and logical AND not printed on completion 
+
 void error(string error, int lineNum)
 {
     cout<<error<<" "<<lineNum<<endl;
