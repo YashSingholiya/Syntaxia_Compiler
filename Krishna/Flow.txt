@@ -27,13 +27,20 @@ in parser.cpp that finally starts the parsing process.
 Now the job of scanner.cpp is complete as it has also created a readable 
 token list text file.
 
+
+Note: Scanner.cpp is also responsible for one syntax/parse support:
+counting if opening and closing brackets are matching. If they dont match 
+then during scanning itself the error will be generated
+
 3. parser.cpp
 
 Here the parsing happens, but that is not all, it also calls varrious functions
 of semantics.cpp that basically do logic analizatoin like:
     is variable defined?
     is expression valid and what is it?
-    etc.
+    ternary operation handling
+    function call and
+    functon declaration and so on.
 
 Hence, this parser.cpp also forms the foundation of semantics while parsing the tokens
 and doing its actual main task:
