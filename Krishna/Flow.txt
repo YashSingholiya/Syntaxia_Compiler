@@ -1,0 +1,44 @@
+            CONTROL FLOW 
+1. file_opener.cpp
+
+Compiler starts working in file_opener.cpp
+
+Here the file is scanned into a buffer and this
+buffer is passed into the scanner function
+    scanner(buffer);
+located in scanner.cpp
+
+2. scanner.cpp
+
+This is the lexical analyzer. The whole file is scanned for tokens
+of the type: Identifier and Keyword (Alphabet), Special Characters (charToken()),
+Numbers, and finally Whitespaces which include lots of things like \n and ' ' etc
+which are all skipped.
+
+Now the makeToken function in the end makes a file of all the tokens and 
+at the same time use the sendToParser function in semantics.cpp
+    sendToParser(type, line);   or
+    sendToParser(type, line, tokenData);
+that creates a token table using 
+class tokenClass, and as soon as EOF token is reached in by lexical analyzer in scanner.cpp
+the sendToParser function calls the parse function 
+    parse(1);
+in parser.cpp that finally starts the parsing process.
+Now the job of scanner.cpp is complete as it has also created a readable 
+token list text file.
+
+3. parser.cpp
+
+Here the parsing happens, but that is not all, it also calls varrious functions
+of semantics.cpp that basically do logic analizatoin like:
+    is variable defined?
+    is expression valid and what is it?
+    etc.
+
+Hence, this parser.cpp also forms the foundation of semantics while parsing the tokens
+and doing its actual main task:
+    checking if the syntax of the various token groups is correct. For this it uses:
+    bool expect(TokenType typeA, int count);
+    bool expect(TokenType typeA,TokenType typeB, int count); etc.
+which are defined in semantics.cpp (?)
+

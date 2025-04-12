@@ -119,6 +119,8 @@ class SymbolTable{
     public:
         tokenClass *    tokenTable[MAX];
         // is an array of pointers to tokenClass objects
+        // this array basically points to ALL tokens we make..
+        // and all of these tokens will be of type tokenClass
 
         int index;
         SymbolTable()
