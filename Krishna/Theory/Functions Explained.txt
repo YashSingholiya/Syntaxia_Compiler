@@ -1,4 +1,5 @@
 1. Function declaration and initializations
+
     This is implemented in the function c_token_fun(int pointer) in semantics.cpp
     It does this in four parts
 
@@ -45,4 +46,22 @@
     case 3: neither
         step1: throw an error saying that MISSING ; or { in function
     
+Note: Fname is a global variable here that tracks the name of 
+the current function being discussed and can be used by all functions
+
+2. Variable declaration and initializations
+
+    This is implemented in the function c_varDeclaration(int pointer) in semantics.cpp.
+    Here we do 2 things:
+    a. Add variable to variable list
+    b. If its not terminated by a semicolon, then call the
+    expression function.
+    why?
+    expression function handles EVERY single ALU computation.
+    If there is an = sign you can bet you need this function.
+
+Note: Here, we need to know which function the current variable is local to
+or whether current variable is global. Hence we use the global variables:
+Fname and track_fname to handle this.
+
 
