@@ -22,6 +22,7 @@ int64_t get_register(const string& reg) {
 
 void set_register(const string& reg, int64_t value) {
     if (reg == "x0") return;
+    cout << "Setting register " << reg << " to " << value << endl;  // Debugging line
     registers[reg] = value;
 }
 
@@ -29,6 +30,7 @@ void parse_labels_and_instructions(const string& filename) {
     ifstream infile(filename);
     string line;
     while (getline(infile, line)) {
+        cout << "Parsing line: " << line << endl;  // Debugging line
         size_t colon = line.find(':');
         if (colon != string::npos) {
             string label = line.substr(0, colon);
@@ -44,6 +46,8 @@ void execute(const string& inst_line) {
     string opcode, rd, rs1, rs2, imm;
     iss >> opcode;
 
+    cout << "Executing: " << inst_line << endl;  // Debugging line
+
     if (opcode == "addi") {
         iss >> rd >> rs1 >> imm;
         set_register(rd, get_register(rs1) + stoi(imm));
@@ -57,7 +61,7 @@ void execute(const string& inst_line) {
         iss >> rs1 >> imm;
         int offset = stoi(imm.substr(0, imm.find('(')));
         string base = imm.substr(imm.find('(') + 1);
-        base.pop_back(); // remove )
+        base.pop_back(); // remove ')'
         memory[get_register(base) + offset] = get_register(rs1);
     } else if (opcode == "ld") {
         iss >> rd >> rs1;
@@ -85,6 +89,7 @@ void execute(const string& inst_line) {
 void run_vm(const string& filename) {
     parse_labels_and_instructions(filename);
     while (pc < static_cast<int>(instructions.size())) {
+        cout << "Current PC: " << pc << endl;  // Debugging line
         execute(instructions[pc]);
         pc++;
     }
@@ -92,6 +97,9 @@ void run_vm(const string& filename) {
 
 void print_registers() {
     cout << "\nFinal Register Values:\n";
+    if (registers.empty()) {
+        cout << "No registers updated." << endl;  // Debugging line
+    }
     for (auto it = registers.begin(); it != registers.end(); ++it) {
         cout << setw(4) << it->first << ": " << it->second << endl;
     }
