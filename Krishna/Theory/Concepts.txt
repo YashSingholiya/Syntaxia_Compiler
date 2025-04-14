@@ -1,16 +1,15 @@
 1. There are typically 2 types of compilers,
-one where the scanner scans tokens and simultaneously sends
-them over to parser...and one where all tokens are generated
-first and then passed on to scanner. Ours is second type.
+    one where the scanner scans tokens and simultaneously sends
+    them over to parser...and one where all tokens are generated
+    first and then passed on to scanner. Ours is second type.
 
 2.Friend CLasses
-A friend class in C++ is a class that is given special 
-access to the private and protected members of another class.
-When to Use Friend Classes?
-When two classes need a tight relationship (e.g., a SymbolTable managing a tokenClass).
-When efficiency is more important than strict encapsulation.
-When you need controlled access to private data without exposing it publicly.
-
+    A friend class in C++ is a class that is given special 
+    access to the private and protected members of another class.
+    When to Use Friend Classes?
+    When two classes need a tight relationship (e.g., a SymbolTable managing a tokenClass).
+    When efficiency is more important than strict encapsulation.
+    When you need controlled access to private data without exposing it publicly.
 example in Parser.h in class tokenClass
 
 3. Registers: these have names that are stored in string arrays like:
@@ -24,8 +23,8 @@ Standard Registers:
     "fp" - frame pointer 
     "sp" - stack pointer
 
-4. Function declaration- dealt with by c_tokenfun(int pointer)
-in semantics.cpp
+4. Function declaration in semantics.cpp, how it is done:
+
 
     // This is for function declaration
     // Note that every function looks like: void scanner(...)
@@ -38,4 +37,16 @@ in semantics.cpp
     // C.compiler function using risc-v
     // D.push the function to scope
 
-5. 
+
+5. Now, how does risc-v compile functions?
+        1.	Allocate space on the stack to create its initial stack frame.
+        2.	Push all or any of all the saved registers on the stack. 
+        3.	Push the return address on the stack, this can be omitted in the case of a leaf procedure. 
+        4.	Push the frame pointer on the stack.
+        5.	Make the frame pointer to point at the beginning of the stack frame e.g fp = sp + 32.
+
+
+6. Note: we are making a 16 bit compiler 
+Hence whenever we are allocating space for scope stack we do:
+    int allocate_space = (variable * 16) + 32;
+    // 32 is for the two ragisters- frame pointer fp and stack pointer sp

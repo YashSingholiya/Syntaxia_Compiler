@@ -30,7 +30,8 @@ token list text file.
 
 Note: Scanner.cpp is also responsible for one syntax/parse support:
 counting if opening and closing brackets are matching. If they dont match 
-then during scanning itself the error will be generated
+then during scanning itself the error will be generated and compilation
+is terminated
 
 3. parser.cpp
 
@@ -60,4 +61,20 @@ semantic functions called here include:
     and so on
 
 After this the semantic analysis begins.
+
+4. semantics.cpp
+This holds some of the most important responsibilities:
+
+    a. it acts as a seantic check to see if already declared 
+    names are used again
+
+    b. it doesnt need to check order of variableas and basic syntax
+    and parses just did all that using expect function
+    So semantic analyzer can focus on other things
+
+    c. This is also the Code Generator, as it generated the 
+    output assembly code as we go along using codegenerate() 
+    Note: we are compiling our code into risc-v assembly
+
+    d.
 

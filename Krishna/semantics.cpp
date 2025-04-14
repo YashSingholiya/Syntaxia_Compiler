@@ -118,6 +118,7 @@ int c_tokenfun(int pointer)
 
     pointer++;
     // now points to TOKEN_FUN
+    // first checking if function name already exists
     while(funcIndex>0)
     {
         if((st.tokenTable[pointer]->identifier == st.funcTable[funcIndex]->Fname)
@@ -131,7 +132,7 @@ int c_tokenfun(int pointer)
         funcIndex--;
     }
 
-    Fname = st.tokenTable[pointer]->identifier;
+    string Fname = st.tokenTable[pointer]->identifier;
     // storing the identifier value of this function here
     st.funcTable[st.indexE] = new funcList(0,Fname,0,0,0,0);
     st.indexE++;
@@ -190,10 +191,81 @@ int c_tokenfun(int pointer)
     // -----------------------------------------------------------
                                 // part C.
     // case1: it was a function initialization
-    st.funcTable[st.indexE -1] ->call =1;
-    scopeCount.push("*func_"+ Fname);
-    
 
+    if(expect(TOKEN_LEFT_BRACE,pointer))
+    {
+        st.funcTable[st.indexE -1] ->call =1;
+        scopeCount.push("*func_"+ Fname);
+        // pusing the function into scope only if its initialized
+        // This way, WHENEVER we access top of scope stack, we can 
+        // easily identify which funcion we are currently in
+        // *func_ is unique identifier for all functions
+        // also, no need to add depth, as no two functions can have
+        // same name
+        
+        codeGenerator(Fname : ":");
+        // This is always the first code generated for ANY function
+        // so that we can JUMP to that functin whenever its called
+        int braces =1;
+        int variable =0;
+        pointer++;
+        // pointer out of function
+        count = pointer;
+
+        // first we want to find total number of variables in this func
+        while(braces != 0){
+            if(st.tokenTable[count]->type == TOKEN_LEFT_BRACE){
+                braces++;
+            }
+            else 
+            if(st.tokenTable[count]->type == TOKEN_RIGHT_BRACE){
+                braces--;
+            }else 
+            if(expect(TOKEN_VAR, TOKEN_IDENTIFIER, count) 
+            || expect(TOKEN_STRINGVAR, TOKEN_IDENTIFIER, count) 
+            || expect(TOKEN_BOOL, TOKEN_IDENTIFIER, count)){
+                variable++;   
+            }else
+            if(st.tokenTable[count]->type == TOKEN_EOF){
+                error("Function  "+Fname+"  have incompatible number of braces", 0);
+            }
+            count++;
+        }
+
+        int allocate_space = (variable * 16) + 32;
+        // 32 is for the two ragisters- frame pointer fp and stack pointer sp
+        braces = variable;
+        count =0;
+
+        ccodeGenerator("addi  sp,  sp,  -"+to_string(allocate_space));
+
+        while(variable>32)
+        {
+            variable-= 16;
+            codeGenerator("sd    "+saveV[count]+",  "+to_string(allocate_space)+"(sp)"); 
+            // saves all the variables into stack..using save registers
+        }
+        codeGenerator("sd    x8,  16(sp)");
+        // sd - store data to memory, which in our case is same as stack
+        // 
+        codeGenerator("sd    x1,  0(sp)");
+        codeGenerator("addi  fp   sp   "+to_string(braces));
+
+        st.funcTable[st.indexE -1] ->Vn = braces;
+        // number of variable for the function is set
+    }
+    // case 2: It was function declaration only, not initialization 
+    else if(expect(TOKEN_SEMICOLON, pointer))
+    {
+        st.funcTable[st.indexE -1]->call = 0;
+        pointer++;
+        // pointer out of function
+    }
+    else
+    {
+        error("MISSING ; or { in function "+Fname+ " on line", st.tokenTable[pointer]->lineNo);
+    }
+    return pointer;
 }
 
 void sendToParser(TokenType type, int line, string numToken)
