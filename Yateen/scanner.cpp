@@ -9,7 +9,11 @@ int braceCount = 0;
 int deleteOld = 0;
 TokenType previousToken;
 string tokenNames[] = {
-"TOKEN_EQUAL",  "TOKEN_LOGICAL_OR", "TOKEN_LOGICAL_AND", "TOKEN_EQUAL_EQUAL", 
+    "TOKEN_BOOL", "TOKEN_VAR", "TOKEN_STRINGVAR", 
+    "TOKEN_IDENTIFIER", "TOKEN_STRING", "TOKEN_NUMBER",
+    "TOKEN_PIN","TOKEN_FALSE", "TOKEN_TRUE", "TOKEN_FUNCALL",
+    "TOKEN_OUTPUT","TOKEN_ENDL",
+    "TOKEN_EQUAL",  "TOKEN_LOGICAL_OR", "TOKEN_LOGICAL_AND", "TOKEN_EQUAL_EQUAL", 
 "TOKEN_GREATER","TOKEN_GREATER_EQUAL",  "TOKEN_LESS", 
 "TOKEN_LESS_EQUAL", "TOKEN_BANG_EQUAL", 
 
@@ -31,10 +35,6 @@ string tokenNames[] = {
  "TOKEN_START", "TOKEN_END",
  // One or two character "TOKENs.
  // Literals.
-  "TOKEN_BOOL", "TOKEN_VAR", "TOKEN_STRINGVAR", 
-  "TOKEN_IDENTIFIER", "TOKEN_STRING", "TOKEN_NUMBER",
-  "TOKEN_PIN","TOKEN_FALSE", "TOKEN_TRUE", "TOKEN_FUNCALL",
-  "TOKEN_OUTPUT","TOKEN_ENDL",
  // Keywords.
 "TOKEN_INFINITE",   "TOKEN_FUN", 
  "TOKEN_VOID", "TOKEN_LEFT_BLOCK", "TOKEN_RIGHT_BLOCK",
@@ -514,6 +514,10 @@ void scanner(char* buffer){
         }
         token++;
     }
+
+
+
+    
     if(end_of_file()){
         makeToken(TOKEN_EOF);
         }
