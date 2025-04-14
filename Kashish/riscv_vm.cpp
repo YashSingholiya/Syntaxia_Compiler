@@ -30,14 +30,31 @@ void parse_labels_and_instructions(const string& filename) {
     ifstream infile(filename);
     string line;
     while (getline(infile, line)) {
-        cout << "Parsing line: " << line << endl;  // Debugging line
+        cout << "Original line: " << line << endl;  // Log the raw line
+        // Remove comments (if any) for clarity
+        size_t comment_pos = line.find('#');
+        if (comment_pos != string::npos) {
+            line = line.substr(0, comment_pos);
+        }
+
+        line = line.substr(0, line.find_last_not_of(" \t\n\r") + 1);  // Strip trailing whitespace
+
+        if (line.empty()) continue; // Skip empty lines
+
+        // Log the cleaned line
+        cout << "Cleaned line: " << line << endl;
+
         size_t colon = line.find(':');
         if (colon != string::npos) {
             string label = line.substr(0, colon);
             labels[label] = instructions.size();
+            cout << "Parsed label: " << label << " at instruction " << instructions.size() << endl;  // Log label
             line = line.substr(colon + 1);
         }
-        if (!line.empty()) instructions.push_back(line);
+
+        if (!line.empty()) {
+            instructions.push_back(line);
+        }
     }
 }
 
@@ -45,8 +62,7 @@ void execute(const string& inst_line) {
     istringstream iss(inst_line);
     string opcode, rd, rs1, rs2, imm;
     iss >> opcode;
-
-    cout << "Executing: " << inst_line << endl;  // Debugging line
+    cout << "Parsed opcode: " << opcode << endl;  // Log parsed opcode
 
     if (opcode == "addi") {
         iss >> rd >> rs1 >> imm;
