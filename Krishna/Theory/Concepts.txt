@@ -1,0 +1,41 @@
+1. There are typically 2 types of compilers,
+one where the scanner scans tokens and simultaneously sends
+them over to parser...and one where all tokens are generated
+first and then passed on to scanner. Ours is second type.
+
+2.Friend CLasses
+A friend class in C++ is a class that is given special 
+access to the private and protected members of another class.
+When to Use Friend Classes?
+When two classes need a tight relationship (e.g., a SymbolTable managing a tokenClass).
+When efficiency is more important than strict encapsulation.
+When you need controlled access to private data without exposing it publicly.
+
+example in Parser.h in class tokenClass
+
+3. Registers: these have names that are stored in string arrays like:
+string saveG[12]       = {"g8", "g9", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "g25", "g26", "g27"};
+
+This basically assigns one of these string values to a physical space in memory
+
+Standard Registers:
+    "x1" - return address, stores the name of the function we are going to jump to
+    "x0" - fixed as 0, refer to this register whenever you need 0
+    "fp" - frame pointer 
+    "sp" - stack pointer
+
+4. Function declaration- dealt with by c_tokenfun(int pointer)
+in semantics.cpp
+
+    // This is for function declaration
+    // Note that every function looks like: void scanner(...)
+    // so tokens inputter will be TOKEN_VOID, TOKEN_FUN
+    // or TOKEN_VAR, TOKEN_FUN and so on
+
+    // So in this part we are going to do 4 steps:
+    // A.add out function to functionlist
+    // B.add its arguements to arguementlist
+    // C.compiler function using risc-v
+    // D.push the function to scope
+
+5. 

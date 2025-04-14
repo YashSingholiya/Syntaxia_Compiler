@@ -397,8 +397,6 @@ static void charToken()
             }
             break;
 
-        
-
     }
 }
 static void checkField(int type)
