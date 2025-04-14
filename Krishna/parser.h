@@ -171,6 +171,7 @@ class tokenClass{
 
         string identifier;
         // stores data of token for ex. int jump() so stores jump
+        // IFF there is data to be stored by token
         int lineNum;
 
         tokenClass(TokenType type, int line)

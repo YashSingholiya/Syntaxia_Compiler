@@ -23,3 +23,19 @@ Standard Registers:
     "x0" - fixed as 0, refer to this register whenever you need 0
     "fp" - frame pointer 
     "sp" - stack pointer
+
+4. Function declaration- dealt with by c_tokenfun(int pointer)
+in semantics.cpp
+
+    // This is for function declaration
+    // Note that every function looks like: void scanner(...)
+    // so tokens inputter will be TOKEN_VOID, TOKEN_FUN
+    // or TOKEN_VAR, TOKEN_FUN and so on
+
+    // So in this part we are going to do 4 steps:
+    // A.add out function to functionlist
+    // B.add its arguements to arguementlist
+    // C.compiler function using risc-v
+    // D.push the function to scope
+
+5. 

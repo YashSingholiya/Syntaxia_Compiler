@@ -1,0 +1,20 @@
+1. Discussing the MIPS R2000 Assembly 
+
+It is important to keep in mind that assembly language is a low-level language, so instructions
+ in assembly language are closely related to their 32-bit representation in machine language.
+ Since we only have 32 bits available to encode every possible assembly instruction, MIPS
+ R2000 instructions have to be simple and follow a rigid structure
+
+    a. Arithmetic instructions:
+        add a,b,c    a=b+c
+        sub a,b,c    a=b-c
+    Notice that each of the
+    previous MIPS R2000 instructions performs 1 operation and has exactly 3 operands
+
+    Similarly, to compute a = (b+c)-(d+e);
+    add t0, b,c
+    add t1,d,e
+    sub a,t0,t1
+
+    b.
+
