@@ -6,6 +6,10 @@ using namespace std;
 SymbolTable st;
 stack <string> scopeCount;
 int scopeDepth;
+string Fname = "";
+string track_fname="";
+int LvIndex = 0;
+int lIndex = 0;
 // depth helps make every item within the scope stack as unique
 // ex. if we encounter 2 iffs inside scope, they will be pushed as if_1 and if_2
 
@@ -67,6 +71,7 @@ string branch[9]       = { "ld", "0", "0", "bne","ble", "blt", "bge", "bgt", "be
 
 
 //-----------------------------------------------------------------------------
+
 void error(string error, int lineNum)
 {
     cout<<error<<" "<<lineNum<<endl;
@@ -132,7 +137,7 @@ int c_tokenfun(int pointer)
         funcIndex--;
     }
 
-    string Fname = st.tokenTable[pointer]->identifier;
+    Fname = st.tokenTable[pointer]->identifier;
     // storing the identifier value of this function here
     st.funcTable[st.indexE] = new funcList(0,Fname,0,0,0,0);
     st.indexE++;
@@ -267,6 +272,108 @@ int c_tokenfun(int pointer)
     }
     return pointer;
 }
+
+int c_varDeclaration(int pointer){
+
+                                // part a.
+
+    // following if setup block executes only once for every function
+    if(track_fname != Fname)
+    {
+        track_fname =Fname;
+        // This will run a. first time for first variable in code
+        // b.when Fname changes then track_fname still holds previous fName and 
+        // hence change of Fname can be detected
+
+        LvIndex =0;
+        // This is local index of local variable for this function's LV list  
+        // this index is reset once in every new function and is 
+        // used to assign index to variables. 
+        lIndex = st.indexV;
+        // This is global index for this local variable in local Var list object
+        // This lIndex will now point to index in memory where local_variables start...
+        // This will be constant for the whole function as new variables are encountered 
+        // and st.indexV will increase for every new variable
+        st.funcTable[st.indexE-1]->Vs = lIndex;
+        // Hence, the start index of all variable for this function is assigned
+    }
+    // Now if we want to search for a given local variable, then we can directly do so
+    // by referring to the function object it belongs to and use its Vs attribute
+    // rather than searching the whole local variable list
+
+    int Lsearch =   st.indexV; //index of current variable
+
+    if(!scopeCount.empty())
+    {
+        // scope not empty..so this variable is actually a local variable
+        while(Lsearch>lIndex)
+        {
+            // basically searching all local vars encountered so far IN THIS FUNCTION
+            if(st.tokenTable[pointer + 1]->identifier == st.localVariable[Lsearch-1]->Vname)
+            {
+                error("Variable double declared on line: ",st.tokenTable[pointer]->lineNum);
+            }
+            Lsearch--;
+        }
+
+        // if we reached so far it means there are no repeated names for this local variable
+        // So no semantic problems here:
+        st.localVariable[st.indexV] = new lVList(st.tokenTable[pointer]->type, 
+            st.tokenTable[pointer+1]->identifier, LvIndex);
+        LvIndex++;
+        // we are able to use this as the function is parsed sequentially
+        st.indexV++;
+
+    }
+    else if(scopeCount.empty())
+    {
+        // its a global variable
+        int Lsearch = st.indexG;
+        //  index of last global variable -1
+        while(Lsearch >0)
+        {
+            if(st.tokenTable[pointer+1]->identifier == st.globalVariable[Lsearch-1])
+            {
+                error("Variable double declared on line: ",st.tokenTable[pointer]->lineNum);
+            }
+            Lsearch--;
+        }
+
+        st.globalVariable[st.indexG] = new gVList(st.tokenTable[pointer]->type, st.tokenTable[pointer+1]->identifier);
+        st.indexG++
+    }
+
+    pointer++;
+    // pointer was initially at int now its at x in : 'int x...'
+    // ----------------------------------------------------------------------------
+    //                              part b.
+    // after this We dont know if this was a variable declaration or start of something else
+
+    if(expect(TOKEN_SEMICOLON, pointer)){
+        token+=2; 
+        // skip the semicolon as there is no semantic error here its perfectly okay
+    }
+    else if(expect(TOKEN_COMMA, pointer+1))
+    {
+        // multiple variable declaration
+        // int a,b
+        // Cool trick we use here:
+        st.tokenTable[pointer+1] = st.tokenTable[pointer-1];
+        // hence it basically looks like comma has been REPLACED BY int !!
+        // and now,
+        pointer = c_varDeclaration(pointer+1);
+        // same process repeats just there yay
+    }
+    else
+    {
+        pointer = expression(pointer, TOKEN_SEMICOLON);
+        // note this pointer always points EXACTLY TO the variable 
+        // to which you want to assign the expression yay
+    }
+
+    return pointer;
+}
+
 
 void sendToParser(TokenType type, int line, string numToken)
 {
