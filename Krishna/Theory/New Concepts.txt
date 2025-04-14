@@ -50,3 +50,16 @@ Standard Registers:
 Hence whenever we are allocating space for scope stack we do:
     int allocate_space = (variable * 16) + 32;
     // 32 is for the two ragisters- frame pointer fp and stack pointer sp
+
+7. npos
+    It is a constant static member value with the highest possible value for an element of type size_t.
+    It actually means until the end of the string.
+    It is used as the value for a length parameter in the string’s member functions.
+    As a return value, it is usually used to indicate no matches.
+
+    so (find(x) != string::npos) 
+    means that x is indeed found
+    and position == std::string::npos
+    means x not found
+
+    for integers, int::npos is basically -1

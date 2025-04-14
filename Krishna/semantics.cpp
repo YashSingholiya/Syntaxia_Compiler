@@ -100,6 +100,45 @@ void writeFile(string Data)
     fclose(fp);
 }
 
+int c_rightBrace(int pointer){
+    // meant for scope termination
+    // many types of scopes- if scope, function scope, while scope etc
+    pointer++;
+
+    // case1: right brace belongs to function scope
+    if(scopeCount.top().find("*func_") != string::npos)
+    {
+        // npos is highes possible value for string
+        // npos is used to check if one strinh is contained in another
+        // larger string
+        // basically, this is in case "*func_" IS actually found
+        // meaning that this is indeed a function scope (case 1)
+
+        // Now,,, we need to pop the stackframe
+        string printfunc = scopeCount.top();
+        printfunc.erase(0, 5);
+        codeGenerator(printfunc+"_exit:");       
+        scopeCount.pop();   
+        int NumLocalVariables = st.funcTable[st.indexE -1]->Vn;
+        int vCnt = ( NumLocalVariables * 16 ) +  32;
+        // total variables, including stackframe and stackpointer
+        int cnt =0;
+        while(vCnt > 32)
+        {
+            vCnt -= 16;
+            codeGenerator("ld    "+saveV[cnt]+",  "+to_string(vCnt)+"(sp)");  
+            cnt++; 
+        }
+        codeGenerator("ld    x8,  16(sp)"); 
+        // x8 is for saved or frame pointer
+        codeGenerator("ld    x1,  0(sp)"); 
+        // x1 is for return address
+        codeGenerator("addi  sp   sp   "+to_string(NumLocalVariables)); 
+        codeGenerator("jalr  x0,   0(x1)");     
+
+    }
+
+}
 
 int c_tokenfun(int pointer)
 {
