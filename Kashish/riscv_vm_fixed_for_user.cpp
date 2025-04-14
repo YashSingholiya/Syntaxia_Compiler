@@ -1,10 +1,10 @@
 #include <iostream>
-#include <string>      // <-- Add this line for std::string
+#include <fstream>
+#include <string>
 #include <sstream>
 #include <unordered_map>
 #include <vector>
 #include <cassert>
-#include <fstream>
 
 // Define register names
 std::unordered_map<std::string, int> registers = {
@@ -24,11 +24,10 @@ int PC = 0;
 
 // Utility function to parse immediate values
 int parse_imm(std::string imm_str) {
-    try {
-        return std::stoi(imm_str);  // Try to convert string to integer
-    } catch (const std::invalid_argument& e) {
-        std::cerr << "Error: Invalid immediate value '" << imm_str << "'" << std::endl;
-        return 0;  // Default value on error
+    if (imm_str[0] == '-') {
+        return std::stoi(imm_str);
+    } else {
+        return std::stoi(imm_str);
     }
 }
 
@@ -101,11 +100,17 @@ void execute_instruction(const std::string& instruction) {
 }
 
 // Main function to run the virtual machine
-int main(int argc, char* argv[]) {
-    // Load the assembly file
-    std::ifstream file(argv[1]);
-    std::string line;
+int main() {
+    // Direct file path for the assembly code
+    std::string file_path = "C:\\Users\\lenovo\\Desktop\\syntaxia\\SyntaxiaCompiler\\Krishna\\assembly_code.txt";  // Direct file path
+    std::ifstream file(file_path);
+    
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file: " << file_path << std::endl;
+        return 1;
+    }
 
+    std::string line;
     while (std::getline(file, line)) {
         // Skip lines that are assembler directives (starting with '.')
         if (line.empty() || line[0] == '.') {
