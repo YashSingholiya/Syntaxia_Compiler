@@ -1,0 +1,48 @@
+1. Function declaration and initializations
+    This is implemented in the function c_token_fun(int pointer) in semantics.cpp
+    It does this in four parts
+
+    Note:
+    Initially pointer is on int, if the line looks like:
+        int scanner(bool hello)...
+
+    a. first part is to add function to functionlist object 
+    which has been initialized in symbol table class
+
+        step1: it checks if the name of function is already present 
+        in the list. If yes then it checks if it is a function initialization or 
+        declaration using variable call in funclist object. 
+        call of a function-> 0 (only declaration)
+                          -> 1(also initialized)
+        if same function name has only been declared then we allow multiple functions
+        with the same otherwise we dont allow and throw an error.
+
+        step2: we add the function as an object into the function list having following
+        attributes,
+            name (given by user), call (0), Vn, Vs, An, as
+            Vn- number of variables
+            Vs- starting point of variables.
+
+    b.adding arguements to this function object
+
+        step1: set start of arguement 'As' as pointer+2
+        step2: find number of args using loop and set 'An'
+        step3: if args not zero, then add them all as objects with 
+        attributes: type, name and index
+
+    c. and d. compile using risc-v and keep making risc-v code 
+
+    case1: initialization
+        step1: set call of function to 1 and 
+        finding total num of variables using loop
+        step2: if eof arrived prematurely, then throw error
+        step3: Generate assembly wrt every single one of these variables
+        and save all these registers in stack for later use also (scope)
+
+    case2: declaration
+        step1: call =0
+
+    case 3: neither
+        step1: throw an error saying that MISSING ; or { in function
+    
+

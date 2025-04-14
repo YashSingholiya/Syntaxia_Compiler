@@ -18,3 +18,9 @@ It is important to keep in mind that assembly language is a low-level language, 
 
     b.
 
+
+
+2. Discussing the risc-v Assembly language
+
+
+
