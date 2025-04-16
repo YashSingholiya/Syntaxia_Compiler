@@ -5,6 +5,8 @@ using namespace std;
 
 SymbolTable st;
 stack <string> scopeCount;
+stack <tokenClass*> char_stack;
+// stores all the operators while evaluating expressions
 int scopeDepth;
 string Fname = "";
 string track_fname="";
@@ -49,7 +51,11 @@ bool expect(TokenType typeA, int count)
     else return false;
     
 }
-
+void error(string error, int lineNum)
+{
+    cout<<error<<" "<<lineNum<<endl;
+    exit(1);
+}
 
 int deleteOld = 0;
 
@@ -71,12 +77,219 @@ string branch[9]       = { "ld", "0", "0", "bne","ble", "blt", "bge", "bgt", "be
 
 
 //-----------------------------------------------------------------------------
+//                                  EXPRESSION EVALUATION
 
-void error(string error, int lineNum)
-{
-    cout<<error<<" "<<lineNum<<endl;
-    exit(1);
+static void assignReg(int pointer);
+static void readExpressList(int pointerStart, int pointerEnd);
+int tenary = 0;
+int expression(int pointer, TokenType express){
+    // pointer points to first token in expression
+    // express as last token of expression
+    // Given F= 25*2+8/2-7(A-9)+3*B-C;
+    // pointer->F and express = semicolon ;
+
+
+    st.indexL = 0;
+    // indexL -> index to the expression list
+    int braces =0;
+    int pointerStart = pointer;
+
+    // expression function uses postfix notation
+    // so we solve it from end to start...hence step1-> move pointer to 
+    // end of expression:
+
+    while(!(expect(express, pointer))||(braces != 0)){
+
+        if((st.tokenTable[pointer]->type  > TOKEN_OUTPUT)
+        ||(st.tokenTable[pointer]->type  == TOKEN_SEMICOLON)){
+              error("invalid syntax in line", st.tokenTable[pointer]->lineNum);
+            //   Tokens greater than token output from our tokens list, are not computable tokens so whenever they
+            //    appear in an expression, we throw an error
+          }else    
+          if(st.tokenTable[pointer]->type  == TOKEN_EOF){
+              error("Unexpected end of file on line", st.tokenTable[pointer-2]->lineNum);
+          }else 
+          if((expect(TOKEN_LEFT_PAREN, pointer))){
+              braces++;
+          }else
+          if((expect(TOKEN_RIGHT_PAREN, pointer))){
+              braces--;
+          }else
+          if((expect(TOKEN_TERNARY, pointer))){
+              scopeCount.push("*ten_"+to_string(scopeDepth));
+              scopeDepth++; 
+              tenary = pointerStart;
+              pointerStart = pointerStart + 2;                  
+              break;
+          }else
+          if((expect(TOKEN_FUNCALL, pointer))){         
+              c_tokenfuncall(pointer); 
+  
+          }else
+          if(
+          ((st.tokenTable[pointer+1]->type > TOKEN_END)&&(st.tokenTable[pointer]->type > TOKEN_END))
+          ||(st.tokenTable[pointer]->type > TOKEN_INFINITE)
+          ){
+              error("Invalid token expression in line", st.tokenTable[pointer]->lineNum);
+                
+          }        
+
+        //   finally, if last token is reached, and scope is finished, ONLY then 
+        // is the expression over. This part is VVIMP
+          if((expect(express, pointer))&&(braces == 0)){
+              break;
+          }
+        
+          pointer++;
+      }
+    int pointerEnd = pointer; 
+    pointerEnd--;
+    // last token (here semicolon) is just expression terminator
+    // i.e. not part of the expression
+
+    // ----------------------------------------------------------------------------
+    // variable assignment and error checking part
+    // Operand Stack updation part
+    
+    while(pointerEnd >= pointerStart){
+
+        if((st.tokenTable[pointerEnd]->type == TOKEN_STRING) &&(!expect(TOKEN_SEMICOLON, pointerEnd+1))
+        &&(!expect(TOKEN_EQUAL, pointerEnd-1)))
+        {
+            error("Invalid string expression on line", st.expressList[pointerEnd]->lineNum);
+            // as the only string expression that our compiler supports is:
+            // car = "Hello world" ;
+        }
+
+        if(expect(TOKEN_START, pointerEnd)){ 
+            while(!expect(TOKEN_END, pointerEnd)){
+                pointerEnd--;
+            }pointerEnd--;
+            st.expressList[st.indexL] = st.tokenTable[pointerEnd];
+            st.indexL++;
+        }else     
+        if((expect(TOKEN_STRING, pointerEnd))
+        ||(expect(TOKEN_IDENTIFIER, pointerEnd))||(expect(TOKEN_NUMBER, pointerEnd))){
+            if((expect(TOKEN_RIGHT_PAREN, pointerEnd-1))||(expect(TOKEN_LEFT_PAREN, pointerEnd+1))){ 
+                if(!(expect(TOKEN_RIGHT_PAREN, pointerStart-1))&& !(expect(TOKEN_LEFT_PAREN, pointer+1))){                 
+                    char_stack.push(new tokenClass(TOKEN_STAR, 0, 0));
+                    // outer if: basically if we have )7 or 8( 
+                    //              it should be treated as )*7 and 8*(
+                    // innner if: ensures if there is:   ..)2 = 3(...
+                    // it doesnt do  ...)*2 = 3*(... 
+
+                    // also
+                    // strings can only appear in this form:
+                    // a = "Hello World"
+                }
+
+            }
+            if(st.tokenTable[pointerEnd]->type == TOKEN_IDENTIFIER){
+                // only identifiers store data, so only they will have registers
+            assignReg(pointerEnd); 
+            }
+            st.expressList[st.indexL] = st.tokenTable[pointerEnd];
+            st.indexL++;
+            
+        }else  
+        if((expect(TOKEN_FALSE, pointerEnd))||(expect(TOKEN_TRUE, pointerEnd))){
+            if(expect(TOKEN_FALSE, pointerEnd)){
+                // treat False as 0 and true as 1 when they are used in expressions
+                // for example: while(true){c++}
+                st.expressList[st.indexL] = new tokenClass(TOKEN_NUMBER, 0 , "0");
+                st.indexL++;
+            }else{
+                st.expressList[st.indexL] = new tokenClass(TOKEN_NUMBER, 0, "1");
+                st.indexL++;
+            }
+        }else 
+        if(expect(TOKEN_RIGHT_PAREN, pointerEnd)){
+            char_stack.push(st.tokenTable[pointerEnd]);
+            // just follow the rules of postfix 
+
+        }else 
+        if (expect(TOKEN_LEFT_PAREN, pointerEnd)) {
+			while (!(char_stack.top()->type == TOKEN_RIGHT_PAREN)) {
+                // pop into main expression until you reach )
+                st.expressList[st.indexL] = char_stack.top();      
+                st.indexL++;
+				char_stack.pop();
+                if(char_stack.empty())                        
+                    error("Missing ')' in expression on line", st.tokenTable[pointerEnd]->lineNo);                
+			}
+			char_stack.pop();
+            // finally also pop the ) you obviously need not add this into 
+            // main postfix expression as thats the purpose of postfix in teh first place
+
+		}else           
+        // -----------------------------------------------------------
+        // Sign Accomodation part
+        if((st.tokenTable[pointerEnd]->type == TOKEN_PLUS)
+        &&(st.tokenTable[pointerEnd-1]->type < TOKEN_BANG)){
+            // all tokens < tOKEN_BANG are operators. Here we simply 
+            // ignore it as 
+            // 7*+3 = 7*3 and 9/+8 = 9/8 and so on
+
+        }else
+        if((st.tokenTable[pointerEnd]->type == TOKEN_SUB)
+        &&(st.tokenTable[pointerEnd-1]->type < TOKEN_BANG)){
+            // Similarly even - sign is accomodated: 7*-3 is converted into 
+            // 7* (0-3) into the internal expression so no errors are thrown
+                st.expressList[st.indexL] = new tokenClass(TOKEN_NUMBER, 0, "0");
+                st.indexL++;
+                // push zero 
+                st.expressList[st.indexL] = new tokenClass(TOKEN_SUB, 0, 0);
+                st.indexL++;                
+                // push minus
+        }else  
+        //----------------------------------------------------------------------
+        // Operator Stack updation part
+        if (st.tokenTable[pointerEnd]->type < TOKEN_LEFT_PAREN){ 
+            // this includes all the operators including unary operators
+            if(!char_stack.empty()){
+                // pop all the operators having LOWER precedence such that 
+                // 
+                while ((st.tokenTable[pointerEnd]->type <= char_stack.top()->type)
+                &&(char_stack.top()->type != TOKEN_RIGHT_PAREN))
+                {
+                    st.expressList[st.indexL] = char_stack.top();
+                    st.indexL++;
+                    char_stack.pop();
+                    if(char_stack.empty())                        
+                        break;
+                }
+                char_stack.push(st.tokenTable[pointerEnd]);
+                
+            }else{
+                char_stack.push(st.tokenTable[pointerEnd]);
+                }
+		}              
+        pointerEnd--;
+    }
+   
+    while(!char_stack.empty())
+    {
+        if(char_stack.top()->type  != TOKEN_RIGHT_PAREN)
+        {
+            // don't forget we want to skip all parenthesis from being pushed into postfix
+            st.expressList[st.indexL] = char_stack.top();
+            st.indexL++;
+        }
+        char_stack.pop(); 
+    }
+
+    //---------------------------------------------------------------------------
+
+    readExpressList(st.indexL, 0);
+    pointer++;
+    // pointer now points to the last terminator token, i.e. to the semicolon
+    // at end of expression
+
+    return pointer;
+
 }
+
+//-----------------------------------------------------------------------------
 // Now creating the final file to print generated low level code into
 void writeFile(string Data)
 {

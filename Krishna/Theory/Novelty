@@ -1,0 +1,33 @@
+1. Novelties in expression evaluation:
+        a.automatically adds multiply sign in the expressions
+        for ex. 7(A+3) is automatically treated as 7*(A+3)
+        which would otherwise give an error in regular c++
+
+        b.Sign accomodation:
+            7*+3 = 7*3 and 9/+8 = 9/8 and so on in our compiler, so if you accidentally write 
+            +3 instead of 3 it wont throw unnecessary errors
+
+            Similarly even - sign is accomodated: 7*-3 is converted into 
+            7* (0-3) into the internal expression so no errors are thrown
+
+    
+
+2. Lexer also performs one syntax checking activity:
+    it ensures that all braces match each other and for every open
+    brace there is a close brace. Hence, there can be no brace 
+    related issues when defining and updating the scope of various code blocks
+
+3. Model Choice Novelties:
+    a. We have chosen to enumerate all tokens in ordr of precedence as can be seem in
+    parser.h , and this unique technique helps simplify lots of operations while 
+    cutting down drastically on the computation time. 
+     ex . to check if x is any operator, you can simply do
+        if(x < TOKEN_LEFT_PAREN){...}
+        as all operators (including unary ops) have lower precedence than
+        TOKEN_LEFT_PAREN.
+    Not many of the current compilers use this however as it imposes some constraints on token manipulation.
+
+    b.
+
+
+note: pls ensure ordering of all class variables is correct

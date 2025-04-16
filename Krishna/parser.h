@@ -149,7 +149,7 @@ class ArguementList{
     string  argName;
     int  argNo;
 
-    ArgumentList(TokenType argType, string argName, int argNo)
+    ArguementList(TokenType argType, string argName, int argNo)
     {
         this->argType        = argType;
         this->argName        = argName;
@@ -202,6 +202,7 @@ class SymbolTable{
 
         funcList * funcTable[MAX];
         tokenClass* expressList[MAX];
+        // contains all the variables while evaluating expressions
         lVList * localVariable[MAX];
         gVList * globalVariable[MAX];
         ArguementList * ArguementTable[MAX];
@@ -209,7 +210,8 @@ class SymbolTable{
 
         int index;
         int indexA, indexV,indexE, indexG, indexL;
-        // Arguement,   , Expression, Global Var,  
+        // Arguement,  Local Variable , Expression, Global Var
+        // indexL -> index to the expression list
         SymbolTable()
         {
             index =1;
