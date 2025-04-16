@@ -10,6 +10,9 @@
             Similarly even - sign is accomodated: 7*-3 is converted into 
             7* (0-3) into the internal expression so no errors are thrown
 
+    Rest of features are same as commonly used compilers
+    -postfix expression used 
+
     
 
 2. Lexer also performs one syntax checking activity:
@@ -27,7 +30,18 @@
         TOKEN_LEFT_PAREN.
     Not many of the current compilers use this however as it imposes some constraints on token manipulation.
 
-    b.
+    b. Generates the Assembly code side by side with Semantic Analysis. Typical compilers 
+    have different codeBlocks for this but we have chosen to fuse these for greater simplicity and most 
+    importantly-> easier debugging.
+
+4. Memory Management choices:
+    1. We have chosen the following registers (and their respective counts):
+
+    2. For arguement handling:
+        In every function, first 5 arguement registers are reserved for functions that are defined WITHIN this function. This way we dont have to push the main arguements into stack every time we want to do something with the inner function arguements..
+        hence boosting computation speed.
+
+        This technique is used by very few commonly used compilers, which instead shift the main function args into the local variable registers of the function...which is computationally most effective but also causes complex operations that can cause memory management bugs later on.
 
 
 note: pls ensure ordering of all class variables is correct

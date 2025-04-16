@@ -143,3 +143,10 @@ this is done via assignReg(int pointer) in semantics.cpp
                 int F= 5; or F=5; 
                     assignReg searches symbol table for type and local idx of F and allocates memory
 
+6. Parsing the Postfix expression and identifying where operations can be done
+and deleting extra elements after that operation is done
+    done in readExpressList() in semantics.cpp, which recursively
+    bring the expression down to just one element in the end
+
+7. Reading Postfix Expression and Generation of Assembly for it
+

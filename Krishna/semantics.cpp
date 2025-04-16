@@ -64,7 +64,7 @@ string saveG[12]       = {"g8", "g9", "g18", "g19", "g20", "g21", "g22", "g23", 
 string argV[8]         = {"x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17"};
 // to save arguements
 string saveV[12]       = { "x9", "x18", "x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27"};
-// saved variable registers
+// saved local variable registers
 string tempV[7]        = {"x5", "x6", "x7", "x28", "x29", "x30", "x31"};
 // temporary variable registers storage
 string instruction[19] = { "add","sub", "div","mod", "mul", "or", "xor", "and", "or",
@@ -103,15 +103,166 @@ static void codeGenerator(string write){
 
 //-----------------------------------------------------------------------------
 //                                  EXPRESSION EVALUATION
+int tempCount;
+int tenary = 0;
+
+
 
 static void assignReg(int pointer)
 {
+    // int pointer = 5;
+    // Now, we will check all local variables and arguements for out current variable
+    // to extract info about its datatype and local index
     if(st.indexE >1){
+        int startV = st.funcTable[st.indexE -1 ]->Vs;
+        // Basically-> ONLY CHECK THE CURRENT FUNCTION in which the given identifier is
+        int endV = st.indexV -1;
+        // so range-> start of this function to the LAST variable detected in this function
+        // RIGHT before current variable
 
+        int startA = st.funcTable[st.indexE -1]->As;
+        int endA = st.indexA -1;
+        // st.index points to NOTHING always, so do all others
+        // st.indexA hence points to last arguement, which will be the current 
+        // variable itself if current variable is an arg. So, we even skip endv
+        // hence loop runs from startV to endV-1
+
+        //checking all local variables in current function
+        while(startV<endV)
+        {
+            if(st.tokenTable[pointer]->identifier == st.localVariable[startV]->Vname)
+            {
+                st.tokenTable[pointer]->regName =saveV[st.localVariable[startV]->vNo];
+                st.tokenTable[pointer]->Vtype = st.localVariable[startV]->vType;
+                return;
+            }startV++;
+        }
+
+        //checking all args in current function (till now)
+        while(startA<endA)
+        {
+            if(st.tokenTable[pointer]->identifier == st.ArguementTable[startA]->argName)
+            {
+                st.tokenTable[pointer]->regName =argV[5  +  st.ArguementTable[startA]->argNo];
+                // from 0 to 4 for args that functions within this function define
+                st.tokenTable[pointer]->Vtype = st.ArguementTable[startA]->argType;
+                return;
+            }startA++;
+        }
     }
+    // now scan the global variable list
+    int gvCount = st.indexG-1;
+    // indexG is always pointing to NOTHING
+
+    // scanning ALL global variable existing
+    while(gvCount>=0)
+    {
+        if(st.tokenTable[pointer]->identifier == st.globalVariable[gvCount]->Gname)
+        {
+            st.tokenTable[pointer]->regName = saveG[gvCount];
+            st.tokenTable[pointer]->Vtype = st.globalVariable[gvCount]->vType;
+            return;
+        }
+
+        gvCount--;
+    }
+
+    // if its NOT IN any of the three lists, means it hasnt been
+    // declared yet at all
+    error("Cannot recognize variable on line: ", st.tokenTable[pointer]->lineNum);
 }
-static void readExpressList(int pointerStart, int pointerEnd);
-int tenary = 0;
+
+static void alu(int pointer);
+
+static void aluB(int pointer);
+
+static void readExpressList(int start, int end){
+
+    start = checkBang(start, end); 
+    start = checkLand(start, end);
+    start = checkLor(start, end);
+
+    // actually calculates result of generated postfix expression
+    // and generated assembly for the same
+
+    // the reduction only occurs when we have the form:
+    // (operand)(operand)(operator) in the expression 
+    // so we must look for these patterns
+
+    tempCount = 0;
+    // index for the temporary variable registers
+    // ALWAYS reset before expression evaluation occurs
+    // such that for new expression same registers can be reused
+
+    for(int i = end; i< start-1; i++){
+       
+        // case 1-> unary operators (++ and --) and before that there is number or 
+        // identifier or string
+       if((st.expressList[i]->type > TOKEN_SEMICOLON)
+       &&((st.expressList[i+1]->type == TOKEN_PLUS_PLUS)||(st.expressList[i+1]->type == TOKEN_MINUS_MINUS))){        
+            alu(i);             
+            // alu replaces 3++ by 4, hence we need to delete ++ from the expressList:
+
+                // shifting all terms ahead of i backwards by 1
+                for(int n = i+1; n < start-1;  n++){
+                    st.expressList[n] = st.expressList[n+1];
+                }       
+                //dont forget to decrease length and end pointer of the 'shortened' list
+                start--;
+                st.indexL--;
+
+            // VVVIMP
+            // and of course, after EVERY deletion, we have to start AGAIN from start
+            // thats how the postfiz calculation is done!
+            i = end;//VVIMP
+        } 
+
+        // case 2-> (operand)(operand)(operator) ->main case
+        else if(start > 2)// TOTAL length of string is AT LEAST 3 (impp)
+        {
+            if((st.expressList[i]->type > TOKEN_SEMICOLON)
+            &&(st.expressList[i+1]->type > TOKEN_SEMICOLON)&&(st.expressList[i+2]->type < TOKEN_BANG)){ 
+
+            aluB(i);
+            // Hence token at position i is replaced by final answer,
+            // so we simply have to delete now, BUt there is a catch!
+                    if(st.expressList[i+2]->type <= TOKEN_BANG_EQUAL){
+                        // logical operators do not return any resuly when 2 operands 
+                        // are operated with it
+                        for(int n = i; n < start-3;  n++){
+                            st.expressList[n] = st.expressList[n+3];
+                        } 
+                        start -=3;
+                        st.indexL -=3;
+                    }else{
+                        // normal case, so delete next 2 things 
+                        for(int n = i+1; n < start-2;  n++){
+                            st.expressList[n] = st.expressList[n+2];} 
+                        start -=2;
+                        st.indexL -=2;
+                        } i = end; 
+            } 
+        }                  
+    }   
+
+    // what if boolean expression? if(x){...} or while(9){....} then we do the following assembly code:
+    if((start - end ==1) && (st.expressList[end]->Vtype == TOKEN_BOOL) )
+    {
+        string printfunc = scopeCount.top();
+        printfunc.erase(0, 5);
+
+        codeGenerator("ble  "+ st.expressList[end]->regName + "  x0  "+ printfunc+ "_exit");
+        start--;
+        st.indexL--;
+    }
+    
+    int check = start - end;
+    if(check > 1){
+        // Recursion yay 
+        readExpressList(start , end);
+    }  
+}
+
 int expression(int pointer, TokenType express){
     // pointer points to first token in expression
     // express as last token of expression
@@ -310,7 +461,7 @@ int expression(int pointer, TokenType express){
 
     //---------------------------------------------------------------------------
 
-    readExpressList(st.indexL, 0);
+    readExpressList(st.indexL, 0);//end then start is passed
     pointer++;
     // pointer now points to the last terminator token, i.e. to the semicolon
     // at end of expression

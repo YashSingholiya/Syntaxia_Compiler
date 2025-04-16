@@ -145,6 +145,7 @@ class gVList{
 
 class ArguementList{
 // stores all arguements of functions
+    public:
     TokenType argType;
     string  argName;
     int  argNo;
@@ -210,8 +211,9 @@ class SymbolTable{
 
         int index;
         int indexA, indexV,indexE, indexG, indexL;
-        // Arguement,  Local Variable , Expression, Global Var
+        // Arguement,  Local Variable , Functions, Global Var
         // indexL -> index to the expression list
+        // indexE -> for function list indexing
         SymbolTable()
         {
             index =1;
