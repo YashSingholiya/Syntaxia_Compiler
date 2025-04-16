@@ -96,3 +96,24 @@ We evaluate expressions via postfix expression rule.
      a = "Hello World" ; 
      this is the only operation that our compiler supports. This is used to assign 
      string values to an identifier
+
+    4. stepwise explaination:
+        a.moves a pointer to end of expressin (-1)
+        so for F=A+B; pointer is now at b
+
+        c. assigns registers for all identifier, by calling 
+        assignReg() function and adds all the nums, string and identifiers
+        i.e. all operands into postfix expr
+
+        c. checks for )8 and converts onto )*8 
+
+        d.sign accomodation
+            8*-5 = 8* (0-5)
+            8/+5 = 8/5
+        
+        e. pushes operators onto stack according to postfix rule and
+        created final postfix expression in st.expressList[]
+
+        f. calls readExpressList(st.indexL, 0); to compile this expression
+        thats now in postfix
+        

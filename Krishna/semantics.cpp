@@ -146,6 +146,10 @@ int expression(int pointer, TokenType express){
     pointerEnd--;
     // last token (here semicolon) is just expression terminator
     // i.e. not part of the expression
+
+    // ----------------------------------------------------------------------------
+    // variable assignment and error checking part
+    // Operand Stack updation part
     
     while(pointerEnd >= pointerStart){
 
