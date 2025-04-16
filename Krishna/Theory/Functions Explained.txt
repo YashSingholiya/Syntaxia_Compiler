@@ -64,4 +64,35 @@ Note: Here, we need to know which function the current variable is local to
 or whether current variable is global. Hence we use the global variables:
 Fname and track_fname to handle this.
 
+3. function scope termination
+    this is case 1 in c_rightBrace() in semantics.cpp
 
+4. solving expressions
+    this is done via expression() in semantics.cpp
+    
+expression includes all logical and arithmetic calculations, register 
+assignment etc. e.g F = A + C;
+
+In our parser, whenever sentence starts with single identifier, this func is called
+Any sentence requiring ANY computation requires this.
+
+We evaluate expressions via postfix expression rule.
+
+    1.Postfix expression rule: In the operator stack: a lower precedence can NEVER
+    sit on top of a higher precedence, thats the law. Also, = has the lowest 
+    precedence so when we encounted in, everything is popped. 
+    
+    Also, when ) is encountered, we keep going as usual, and when ( is later encountered,
+    we pop everything till (.
+
+    To create the postfix expression, we go from the end of expression to start.
+
+    2. our func: 
+        step1- convert expression into postfix
+        step1- 
+
+    3. strings:
+     strings can only appear in this form:
+     a = "Hello World" ; 
+     this is the only operation that our compiler supports. This is used to assign 
+     string values to an identifier
