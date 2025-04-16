@@ -75,11 +75,41 @@ string branch[9]       = { "ld", "0", "0", "bne","ble", "blt", "bge", "bgt", "be
 // deals with TOKEN_EQUAL to TOKEN_BANG
 // "0", "0" because tokens logical OR and logical AND not printed on completion 
 
+//-----------------------------------------------------------------------------
+int deleteold = 0;
+static void codeGenerator(string write){
+    int n = write.length();
+    char char_array[n + 1];
+    strcpy(char_array, write.c_str());
+
+    FILE *Files ;
+    if(deleteold == 0){
+        deleteold++;
+        if (Files = fopen("compile.txt", "r")) {
+            fclose(Files);
+            if (remove("compile.txt") == 0){
+                
+            }
+        }
+    }
+    
+    Files = fopen("compile.txt", "a");
+	fputs(char_array, Files);
+    fputs("\n", Files);
+	fclose(Files);
+
+}
+
 
 //-----------------------------------------------------------------------------
 //                                  EXPRESSION EVALUATION
 
-static void assignReg(int pointer);
+static void assignReg(int pointer)
+{
+    if(st.indexE >1){
+
+    }
+}
 static void readExpressList(int pointerStart, int pointerEnd);
 int tenary = 0;
 int expression(int pointer, TokenType express){
@@ -150,7 +180,7 @@ int expression(int pointer, TokenType express){
     // ----------------------------------------------------------------------------
     // variable assignment and error checking part
     // Operand Stack updation part
-    
+
     while(pointerEnd >= pointerStart){
 
         if((st.tokenTable[pointerEnd]->type == TOKEN_STRING) &&(!expect(TOKEN_SEMICOLON, pointerEnd+1))
@@ -381,7 +411,7 @@ int c_tokenfun(int pointer)
         if((st.tokenTable[pointer]->identifier == st.funcTable[funcIndex]->Fname)
         && (st.funcTable[funcIndex]->call ==1) )
         {
-            error("function already exists",st.tokenTable[pointer]->lineNum)
+            error("function already exists",st.tokenTable[pointer]->lineNum);
         }
         // if call ==1 then function also has been initialized 
         // and so we can make another function of the same name
@@ -411,7 +441,7 @@ int c_tokenfun(int pointer)
     if(st.tokenTable[pointer]->type != TOKEN_RIGHT_PAREN)
     {
         // arguements DO exist
-        argno =1;
+        argNo =1;
         // first lets count total number of args. But we dont want
         // to disturb the main pointer here, so we use substitute pointer
 
@@ -460,7 +490,7 @@ int c_tokenfun(int pointer)
         // also, no need to add depth, as no two functions can have
         // same name
         
-        codeGenerator(Fname : ":");
+        codeGenerator(Fname + ":");
         // This is always the first code generated for ANY function
         // so that we can JUMP to that functin whenever its called
         int braces =1;
@@ -494,7 +524,7 @@ int c_tokenfun(int pointer)
         braces = variable;
         count =0;
 
-        ccodeGenerator("addi  sp,  sp,  -"+to_string(allocate_space));
+        codeGenerator("addi  sp,  sp,  -"+to_string(allocate_space));
 
         while(variable>32)
         {

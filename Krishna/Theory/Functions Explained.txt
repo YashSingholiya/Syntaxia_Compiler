@@ -117,3 +117,29 @@ We evaluate expressions via postfix expression rule.
         f. calls readExpressList(st.indexL, 0); to compile this expression
         thats now in postfix
         
+5. assignment of registers
+this is done via assignReg(int pointer) in semantics.cpp
+
+    1. only accepts identifier whose register needs to be saved. Also, every identifier
+    needs to have a register assigned to it.
+
+    whenever a identifier is created/declared, our compiler gives it a special index 
+    (all stored in symbol table)
+
+    VVIMP-->
+        However, in this func, the identifiers are coming from an Expression. So we have NO info
+        about their type and their local idx, hence we search :
+            localVarList
+            GlobalVarList and
+            ArgList 
+        for this token and take the data from there (as an identifier will have to be in one
+        of there 3 lists if its valid)
+
+        Hence, during assignment of register, we put these type and local index ALSO into register
+
+        basically:
+                int F; 
+                    symbol table stores type of f and gives it local idx
+                int F= 5; or F=5; 
+                    assignReg searches symbol table for type and local idx of F and allocates memory
+
