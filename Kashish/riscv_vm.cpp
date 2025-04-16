@@ -21,17 +21,21 @@ int64_t get_register(const string& reg) {
 }
 
 void set_register(const string& reg, int64_t value) {
-    if (reg == "x0") return;
+    if (reg == "x0") return;  // x0 cannot be changed
     cout << "Setting register " << reg << " to " << value << endl;  // Debugging line
     registers[reg] = value;
+}
+
+bool is_riscv_instruction(const string& line) {
+    // Skip non-instruction lines like `.text`, `.extern`, `.globl`, etc.
+    return !(line.empty() || line[0] == '.' || line.find(':') != string::npos);
 }
 
 void parse_labels_and_instructions(const string& filename) {
     ifstream infile(filename);
     string line;
     while (getline(infile, line)) {
-        cout << "Original line: " << line << endl;  // Log the raw line
-        // Remove comments (if any) for clarity
+        // Remove comments and whitespace
         size_t comment_pos = line.find('#');
         if (comment_pos != string::npos) {
             line = line.substr(0, comment_pos);
@@ -39,10 +43,10 @@ void parse_labels_and_instructions(const string& filename) {
 
         line = line.substr(0, line.find_last_not_of(" \t\n\r") + 1);  // Strip trailing whitespace
 
-        if (line.empty()) continue; // Skip empty lines
+        if (line.empty()) continue;  // Skip empty lines
 
-        // Log the cleaned line
-        cout << "Cleaned line: " << line << endl;
+        // Skip non-RISC-V instructions
+        if (!is_riscv_instruction(line)) continue;
 
         size_t colon = line.find(':');
         if (colon != string::npos) {
@@ -56,6 +60,12 @@ void parse_labels_and_instructions(const string& filename) {
             instructions.push_back(line);
         }
     }
+
+    // Debugging: Print out the number of instructions and their content
+    cout << "\nTotal instructions parsed: " << instructions.size() << endl;
+    for (const string& inst : instructions) {
+        cout << "Instruction: " << inst << endl;
+    }
 }
 
 void execute(const string& inst_line) {
@@ -66,12 +76,15 @@ void execute(const string& inst_line) {
 
     if (opcode == "addi") {
         iss >> rd >> rs1 >> imm;
+        cout << "Executing addi: " << rd << ", " << rs1 << ", " << imm << endl;  // Debugging line
         set_register(rd, get_register(rs1) + stoi(imm));
     } else if (opcode == "add") {
         iss >> rd >> rs1 >> rs2;
+        cout << "Executing add: " << rd << ", " << rs1 << ", " << rs2 << endl;  // Debugging line
         set_register(rd, get_register(rs1) + get_register(rs2));
     } else if (opcode == "ldi") {
         iss >> rd >> imm;
+        cout << "Executing ldi: " << rd << ", " << imm << endl;  // Debugging line
         set_register(rd, stoi(imm));
     } else if (opcode == "sd") {
         iss >> rs1 >> imm;
@@ -92,13 +105,22 @@ void execute(const string& inst_line) {
         pc = get_register("x1") - 1;
     } else if (opcode == "beq") {
         iss >> rs1 >> rs2 >> imm;
-        if (get_register(rs1) == get_register(rs2)) pc = labels[imm] - 1;
+        if (get_register(rs1) == get_register(rs2)) {
+            cout << "Branch taken on beq" << endl;  // Debugging line
+            pc = labels[imm] - 1;
+        }
     } else if (opcode == "bne") {
         iss >> rs1 >> imm >> rd;
-        if (get_register(rs1) != stoi(imm)) pc = labels[rd] - 1;
+        if (get_register(rs1) != stoi(imm)) {
+            cout << "Branch taken on bne" << endl;  // Debugging line
+            pc = labels[rd] - 1;
+        }
     } else if (opcode == "blt") {
         iss >> rs1 >> rs2 >> rd;
-        if (get_register(rs1) < get_register(rs2)) pc = labels[rd] - 1;
+        if (get_register(rs1) < get_register(rs2)) {
+            cout << "Branch taken on blt" << endl;  // Debugging line
+            pc = labels[rd] - 1;
+        }
     }
 }
 
@@ -122,7 +144,7 @@ void print_registers() {
 }
 
 int main() {
-    run_vm("assembly_code.txt");
+    run_vm("C:\\Users\\lenovo\\Desktop\\syntaxia\\SyntaxiaCompiler\\Krishna\\assembly_code.txt");  // Updated path
     print_registers();
     return 0;
 }
