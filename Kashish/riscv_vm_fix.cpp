@@ -1,4 +1,3 @@
-// RISC-V Virtual Machine (Minimal Example)
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -25,6 +24,25 @@ int getRegister(const std::string &name) {
     return -1;
 }
 
+// Function to clean assembly code
+void cleanAssembly() {
+    for (auto &line : instructions) {
+        // Fix invalid jump instructions like 'jal XI testfunction'
+        size_t pos = line.find("jal  XI");
+        if (pos != std::string::npos) {
+            line.replace(pos, 7, "jal");
+        }
+
+        // Remove trailing commas from arguments
+        size_t comma_pos = line.find(",");
+        while (comma_pos != std::string::npos) {
+            line.erase(comma_pos, 1);  // Remove comma
+            comma_pos = line.find(",", comma_pos);  // Find next comma
+        }
+    }
+}
+
+// Load assembly code from a file
 void loadAssembly(const std::string &filename) {
     std::ifstream file(filename);
     std::string line;
@@ -47,8 +65,12 @@ void loadAssembly(const std::string &filename) {
 
         if (!line.empty()) instructions.push_back(line);
     }
+
+    // Clean the instructions
+    cleanAssembly();
 }
 
+// Execute the assembly instructions
 void execute() {
     for (int pc = 0; pc < instructions.size(); ++pc) {
         std::istringstream iss(instructions[pc]);
@@ -116,6 +138,7 @@ void execute() {
     }
 }
 
+// Print the final register state
 void printRegisters() {
     std::cout << "\nFinal Register State:\n";
     for (int i = 0; i < 32; ++i) {
@@ -131,4 +154,3 @@ int main() {
     printRegisters();
     return 0;
 }
-
