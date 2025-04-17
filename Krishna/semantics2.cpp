@@ -81,6 +81,12 @@ static void codeGenerator(string write){
 
 }
 
+void error(string error, int lineNo){
+    cout<<error<<" "<<lineNo<<endl;
+    codeGenerator("Error on line: "+ to_string(lineNo));
+    exit(1);
+}
+
 static void assignReg(int pointer){
     
     if(st.indexE > 1){
