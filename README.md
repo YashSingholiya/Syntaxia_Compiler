@@ -3,19 +3,6 @@
 Welcome to **Syntaxia**, a compiler designed to interpret and compile a subset of the C++ programming language into a RISC-V based assembly format inspired by MIPS R2000.
 ---
 
-## Team Members
-
-This project was developed collaboratively by:
-
-- Yateen  
-- Kashish  
-- Yash  
-- Sunny  
-- Nidhish  
-- Krishna  
-
----
-
 ## Supported Features
 
 **Syntaxia** supports:
@@ -68,11 +55,23 @@ Syntaxia translates your C code using the following register conventions:
 
 Syntaxia includes a user-friendly frontend to interact with the compiler.
 
+---
+## Team Members
+
+This project was developed collaboratively by:
+
+- Yateen  
+- Kashish  
+- Yash  
+- Sunny  
+- Nidhish  
+- Krishna  
+---
 ### Launch Instructions
 
 1. Open your terminal and navigate to the project directory.
 2. Run the following command:
    ```bash
    python server.py
-3. The web UI will launch. Enter your C code into the provided editor.
+3. The web UI will launch. Enter your C++ code into the provided editor.
 4. Click the 'Compile' button to generate the assembly output.
