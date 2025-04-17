@@ -55,7 +55,8 @@ bool expect(TokenType typeA, int count){
     
 void error(string error, int lineNo){
     cout<<error<<" "<<lineNo<<endl;
-    exit(1);}
+    exit(1);
+}
 
 static void codeGenerator(string write){
     int n = write.length();

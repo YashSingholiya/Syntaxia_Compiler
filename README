@@ -1,0 +1,9 @@
+        SYNTAXIA 
+
+This compiler has been created in collaboration by the following members:
+    Yateen,Kashish,Yash,Sunny,Nidhish,Krishna
+
+Syntaxia supports a basic C codebase, and compiles for the following operations:
+    -Expression evaluation
+    -all scope related functionalities:
+        function declaration, local variable and arguement support, if , while, goto, 
