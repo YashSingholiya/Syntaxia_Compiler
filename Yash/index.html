@@ -2,24 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Compiler UI</title>
+  <title>Syntaxia</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h2>Custom Compiler</h2>
-    <div id="editor" class="editor">// Write your C++ code here</div>
-    <button onclick="compileCode()">Compile</button>
-
+    <h2>Syntaxia Compiler</h2>
+    <div class="editor-container">
+      <div id="editor" class="editor"> Write your C++ code here</div>
+      <button onclick="compileCode()" class="compile-btn">Compile</button>
+    </div>
+    
     <div class="output-section">
       <div>
         <h3>Lexical Analysis</h3>
         <pre id="lexical-output"></pre>
       </div>
-      <div>
-        <h3>Semantic Analysis</h3>
-        <pre id="semantic-output"></pre>
-      </div>
+  
       <div>
         <h3>Assembly Code</h3>
         <pre id="assembly-output"></pre>
