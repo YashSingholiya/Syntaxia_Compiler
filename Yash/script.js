@@ -10,10 +10,10 @@ require(['vs/editor/editor.main'], function () {
   });
 });
 
-// Function to compile the code
+// Compile the code and display results
 function compileCode() {
     const code = editor.getValue();
-  
+
     fetch('http://127.0.0.1:5000/compile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -21,11 +21,9 @@ function compileCode() {
     })
     .then(res => res.json())
     .then(data => {
-      console.log("Backend Response:", data); // Add this line
-  
       document.getElementById('lexical-output').innerText = data.lexical || 'No output';
-      document.getElementById('semantic-output').innerText = data.semantic || 'No output';
       document.getElementById('assembly-output').innerText = data.assembly || 'No output';
     })
     .catch(err => alert('Compilation error: ' + err));
-  }
+}
+
