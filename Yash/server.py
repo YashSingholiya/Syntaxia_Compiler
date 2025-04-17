@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import subprocess
-import tempfile
 import os
 
 app = Flask(__name__)
@@ -11,28 +10,33 @@ CORS(app)
 def compile_code():
     code = request.json.get('code')
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".cpp", mode='w') as temp_file:
-        temp_file.write(code)
-        temp_path = temp_file.name
+    # Write editor code directly to test.cpp
+    with open("test.cpp", "w") as test_file:
+        test_file.write(code)
 
     try:
-        result = subprocess.run(['hello.exe', temp_path], capture_output=True, text=True, timeout=10)
-        output = result.stdout.split('---SPLIT---')
-        print("Raw Output from hello.exe:\n", result.stdout)
+        # Run hello.exe with test.cpp
+        subprocess.run(['hello.exe', 'test.cpp'], capture_output=True, text=True, timeout=10)
 
-        # Ensure output list has at least 3 elements
-        output += [""] * (3 - len(output))
+        # Read lexical analysis from tokens.txt
+        lexical = "tokens.txt not found"
+        if os.path.exists('tokens.txt'):
+            with open('tokens.txt', 'r') as f:
+                lexical = f.read()
+
+        # Read assembly code from compile.txt
+        assembly = "compile.txt not found"
+        if os.path.exists('compile.txt'):
+            with open('compile.txt', 'r') as f:
+                assembly = f.read()
 
         return jsonify({
-            'lexical': output[0].strip(),
-            'semantic': output[1].strip(),
-            'assembly': output[2].strip(),
+            'lexical': lexical.strip(),
+            'assembly': assembly.strip(),
         })
+
     except Exception as e:
-        print("Error during compilation:", e)
         return jsonify({'error': str(e)}), 500
-    finally:
-        os.remove(temp_path)
 
 if __name__ == '__main__':
     app.run(debug=True)
