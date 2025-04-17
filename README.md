@@ -1,6 +1,7 @@
 # SYNTAXIA - A C++ Compiler
 
 Welcome to **Syntaxia**, a compiler designed to interpret and compile a subset of the C++ programming language into a RISC-V based assembly format inspired by MIPS R2000.
+
 ---
 
 ## Supported Features
