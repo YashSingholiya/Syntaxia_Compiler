@@ -1,38 +1,73 @@
 body {
-    font-family: sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f9f9f9;
-  }
-  
-  .container {
-    padding: 20px;
-  }
-  
-  .editor {
-    height: 300px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-  }
-  
-  .output-section {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  
-  .output-section > div {
-    flex: 1;
-    min-width: 300px;
-  }
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+}
 
-  pre {
-    white-space: pre-wrap;
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    padding: 10px;
-    border-radius: 5px;
-  }
-  
-  
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 30px 20px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.editor-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.editor {
+  height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.compile-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007acc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.compile-btn:hover {
+  background-color: #005fa3;
+}
+
+.output-section {
+  margin-top: 30px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.output-section > div {
+  flex: 1;
+  min-width: 300px;
+}
+
+.output-section h3 {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+pre {
+  white-space: pre-wrap;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
