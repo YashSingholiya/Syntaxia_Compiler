@@ -172,9 +172,224 @@ static void assignReg(int pointer)
     error("Cannot recognize variable on line: ", st.tokenTable[pointer]->lineNum);
 }
 
-static void alu(int pointer);
+static void alu(int pointer){
+    tokenClass* token1 = st.expressList[pointer];    
+    tokenClass* token2 = st.expressList[pointer+1]; 
+    
+    if((token1->type == TOKEN_STRING)||(token1->type == TOKEN_STRINGVAR)){
+        error("A string variable is not expected in the expression on line", st.expressList[pointer]->lineNo);
+    }
 
-static void aluB(int pointer);
+    // this is a constant assignment obviously, hence we use addi not add
+    switch(token2->type){
+        case TOKEN_PLUS_PLUS:
+            if(token1->Vtype == TOKEN_VAR){
+                codeGenerator("addi  "+token1->regName+"  "+token1->regName+"  1");
+            }else{error("Invalid expression on line", st.expressList[pointer]->lineNum);}
+        break;
+        case TOKEN_MINUS_MINUS:
+            if(token1->Vtype == TOKEN_VAR){
+                codeGenerator("addi  "+token1->regName+"  "+token1->regName+"  -1");
+            }else{error("Invalid expression on line", st.expressList[pointer]->lineNum);}
+        break;
+
+        case TOKEN_BANG:
+            if(token1->Vtype == TOKEN_BOOL)
+            {
+                codeGenerator("xor  "+ tempV[tempCount]+"  "+token1->regName+"  xFFFF" );
+                // this gives the inverse value
+                st.expressList[pointer]->regName = tempV[tempCount];
+            }
+        default:
+        error("invalid unary expression on line",  st.expressList[pointer]->lineNum);
+
+    }    
+}
+
+
+// This here is kinda the crux of the compiler's operation
+static void aluB(int pointer)
+{
+    tokenClass * token1 = st.expressList[pointer];
+    tokenClass * token2 = st.expressList[pointer+1];
+    tokenClass * token3 = st.expressList[pointer+2];
+
+    string printfunc;
+    string command;
+    string storeReg;
+    // RS1 and RS2 are 2 registers reserved for the 2 operands 
+    string RS1;
+    string RS2;
+
+    // Note: token1 -> RS2
+    //       token2 -> RS1
+    //       token3 (operation) ->command
+    // flipping for 1 and 2 is done as postfix naturally reverses the orders of 
+    // all operations taking place
+
+    // now for following part pls refer to Theory/Alu_registers.png
+    if((token1->type == TOKEN_IDENTIFIER)||(token1->type == TOKEN_OUTPUT)){
+        RS2 = token1->regName;
+    }else
+    if(token1->type == TOKEN_NUMBER){
+        RS2 = token1->identifier;
+    }    
+    if(token1->type == TOKEN_STRING){
+        RS2 = "STR"+to_string(scopeDepth);
+        scopeDepth++;
+        // why?
+    }
+    // Basically, if they are constants, we use their value which is their identifier.
+    // for ex, if token is 7, then its identifier is "7"
+    // but if its an identifier, then RS2 may not be big enough to hold its name if
+    // it is too big. So we represent the strings with their register labels.
+
+    // At this point all the labels that enter the alu have a register assigned to them.
+    // which can be accessed by token->regName directly
+
+
+
+    if((token2->type == TOKEN_IDENTIFIER)||(token2->type == TOKEN_OUTPUT)){
+        RS1 = token2->regName;
+        // EVERY identifier has a regName after its been through AssignReg
+    }else
+    if(token2->type == TOKEN_NUMBER){
+        // RS1 is often used to stored the output DIRECTLY!! hence, we can easily do
+        // so if only we assign a temporary register to this token. Note, only identifiers
+        // are assigned storage registers by assignReg() function. If we do this, then its 
+        // actually possible to save a register's memory for every calculation.
+
+        // of course, whenever RS2 is a number, this is required immediately,
+        // so we use an 'i' with the command
+        codeGenerator("ldi  "+tempV[tempCount] + " "+token2->identifier);
+        // sd if for storing in memory and ld is for loading into registers
+        // hence if you loaded 7 into temporary space you will see
+        // ldi x3 7
+        RS1 = tempV[tempCount];
+        // Hence, RS1 is that temporary storage
+        tempCount++;
+        // reset to zero at start of every NEW expresssion 
+    }else
+    if(token2->type == TOKEN_STRING){
+
+        // yes, every constant gets its own temporary register when that is going to be
+        // stored into RES 1
+        codeGenerator("ldi  "+tempV[tempCount] + "   STR"+to_string(scopeDepth));
+        RS1 = tempV[tempCount];
+        tempCount++;
+    }
+
+
+    // VVIMP: pls refer to diagram in Alu)registers.png
+    // If token2 is a variable then we try not to store output using it
+    // in order to avoid overwriting its data WHICH WE NEED LATER ON IN SAME FUNCTION
+    // why? because y=(x+z) SHOULD NOT CHANGE THE VALUE OF x or z but only of y!!!!
+
+
+    // Instead we do one of the following
+    //      a. if RS2 = output then
+    // store output in RS2, as EVEN IF OUTPUT DATA IS LOST, its still okay!
+    // as previous output has only purpose- finding next output. Losing prev output 
+    // on finding new one is perfectly okay
+    //      b.if RS2 != output, then:
+    // create a new special registor for storing the output and use neither RES1 not RES2
+    // note: storeReg is for storing the output of the operation done on the two opernads
+    if(token2->type != TOKEN_IDENTIFIER)
+    {   storeReg = RS1;
+    }else
+    if(token1->type == TOKEN_OUTPUT){
+        storeReg = RS2;
+    }else
+    {   storeReg = tempV[tempCount];
+        // new register assigned as RS1 is identifier so its busy and
+        // RS2 is number/identifier whose 
+        tempCount++;
+    }  
+
+
+    // Now time to account for all the operations, now that res1 and res2 have been 
+    // appropriately allocated in main memory!!!!
+
+    if(token3->type == TOKEN_EQUAL)
+    // token 2 must be an identifier i.e.
+    {   command = branch[token3->type]; //in this case command = 'ld'
+        if((token1->type == TOKEN_STRING)||(token1->type == TOKEN_NUMBER))
+        { command = command + "i";   
+            // ex. x "hello" =
+            // meaning x = "Hello"
+
+            // This is saying, CONSTANT ASSIGNMENTS are done immediately, 
+            // because they can!
+            // if you say xy= or x = y,
+            // Then you must find registers of x and y and then allocate, dellocate
+            // This whole thing clearly cant be immediate
+        }
+        codeGenerator(command+"  "+ token2->regName +"  "+RS2);
+
+        //string assignment
+        // if(token1->type == TOKEN_STRING){     
+        //     codeGenerator(".data"); //data mode
+        //     codeGenerator("STR"+to_string(scopeDepth)+":");//scopedepth of string 
+        //     codeGenerator("asciiz'"+token1->identifier+" ' "); // actual content of string!
+        //     codeGenerator(".text"); //back to text mode
+        //     scopeDepth++;        
+        // } 
+        // done at bottom so it applies to all ifs
+    }
+    
+    else 
+    if(token3->type <= TOKEN_BANG_EQUAL)
+    {   //== , || , >, <=  -> all logical operators
+        command = branch[token3->type];
+
+    if(scopeCount.top().find("*") != string::npos){  
+        printfunc = scopeCount.top();
+        printfunc.erase(0, 5); 
+        }else{
+            printfunc = scopeCount.top();
+        }
+        codeGenerator(command+"   "+RS1+"   "+RS2+" "+printfunc+"_exit");
+        // every logical operation has a scope of its own, and like now,
+        // we simply give a "_exit" to mark end of scope
+    }
+    
+    else
+    if(token3->type <= TOKEN_ASS_AND)
+    // for all athitmetic+ assignment operations
+    // Here, we DONT need the temporary variable, as FOR sure, token2 is
+    // going to be an identifier, whose value is supposed to be updated,
+    // so not worried about accidental ovverwriting
+    {   command = instruction[token3->type - TOKEN_TERNARY];
+        if(token1->type == TOKEN_NUMBER)
+            { command = command + "i"; }    
+        codeGenerator(command+"   "+ token2->regName +"   "+RS1+"   "+RS2);  
+        // token->2 's register is updated 
+    }
+
+    else
+    if(token3->type <= TOKEN_STAR)
+    // for all arithmetic opetations
+    {   command = instruction[token3->type - TOKEN_TERNARY];
+        if(token1->type == TOKEN_NUMBER)
+            { command = command + "i";   }
+        codeGenerator(command+"   "+storeReg+"   "+RS1+"   "+RS2);    
+        st.expressList[pointer]->type    = TOKEN_OUTPUT;
+        // here is where these are created
+        st.expressList[pointer]->regName = storeReg;            
+    }   
+
+
+
+    if(token1->type == TOKEN_STRING){     
+        codeGenerator(".data"); 
+        codeGenerator("STR"+to_string(scopeDepth)+":");
+        codeGenerator("asciiz'"+token1->identifier+" ' "); 
+        codeGenerator(".text");
+        scopeDepth++;        
+    } 
+
+
+}
 
 static void readExpressList(int start, int end){
 
