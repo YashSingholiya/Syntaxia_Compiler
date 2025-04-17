@@ -38,10 +38,23 @@
     1. We have chosen the following registers (and their respective counts):
 
     2. For arguement handling:
-        In every function, first 5 arguement registers are reserved for functions that are defined WITHIN this function. This way we dont have to push the main arguements into stack every time we want to do something with the inner function arguements..
+        In every function, first 5 arguement registers are reserved for functions that are defined 
+        WITHIN this function. This way we dont have to push the main arguements into stack every time 
+        we want to do something with the inner function arguements..
         hence boosting computation speed.
 
-        This technique is used by very few commonly used compilers, which instead shift the main function args into the local variable registers of the function...which is computationally most effective but also causes complex operations that can cause memory management bugs later on.
+        This technique is used by very few commonly used compilers, which instead shift the main 
+        function args into the local variable registers of the function...which is computationally
+        most effective but also causes complex operations that can cause memory management bugs later on.
+    
+    3.following register array choices have been made to optimise the complexity of model with its 
+    computational efficiency:
+        local variables->{ "x9", "x18", "x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27"}
+        arithmetic instructions->{ "add","sub", "div","mod", "mul", "or", "xor", "and", "or",
+                         "xor", "and", "sll", "srl", "not", "add", "sub", "div", "mod", "mul"};
+        branch instructions->{ "ld", "0", "0", "bne","ble", "blt", "bge", "bgt", "beq"};
+        arguements->{"x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17"};
+        global variables ->{"g8", "g9", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "g25", "g26", "g27"}
 
 
 note: pls ensure ordering of all class variables is correct

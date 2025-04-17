@@ -1,9 +1,37 @@
         SYNTAXIA 
 
-This compiler has been created in collaboration by the following members:
+1.This compiler has been created in collaboration by the following members:
     Yateen,Kashish,Yash,Sunny,Nidhish,Krishna
 
-Syntaxia supports a basic C codebase, and compiles for the following operations:
+2.Syntaxia supports a basic C codebase, and compiles for the following operations:
     -Expression evaluation
     -all scope related functionalities:
-        function declaration, local variable and arguement support, if , while, goto, 
+        function declaration, local variable and arguement support, if , while, goto and so on
+    - all semantic support and logical support provided
+
+3.Working with the following register arrays:
+    local variables->{ "x9", "x18", "x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27"}
+        arithmetic instructions->{ "add","sub", "div","mod", "mul", "or", "xor", "and", "or",
+                         "xor", "and", "sll", "srl", "not", "add", "sub", "div", "mod", "mul"};
+        branch instructions->{ "ld", "0", "0", "bne","ble", "blt", "bge", "bgt", "beq"};
+        arguements->{"x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17"};
+        global variables ->{"g8", "g9", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "g25", "g26", "g27"}
+
+    Basically, a final MIPS R2000 based assembly language in risc-v is obtained as final low level form of data.
+
+4. Functionality distribution is as follows:
+    scanner.cpp , scaner.h  ->lexical analysis. All tokens stored in 'tokens.txt'
+    parser.cpp , parser.h -> syntax analysis and helpers to semantics
+    semantics.cpp, semantics.h -> final semantic evaluation, inclusing expression evaluation and 
+                                continuous scope check that also does side by side Code Generation
+                                into the final assembly file: 'compile.txt'
+
+5. Front end:
+    To conveniently visualize the compiler functionality, kindly follow the following steps 
+    to deploy our final project-
+        type:   python server.py in bash
+        by directing to current directory.
+
+    Now the UI opens right up. Kindly enter your code in provided coding terminal and click the 
+    'compile' button to see the results.
+
