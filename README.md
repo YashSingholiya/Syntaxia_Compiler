@@ -57,17 +57,6 @@ Syntaxia translates your C code using the following register conventions:
 Syntaxia includes a user-friendly frontend to interact with the compiler.
 
 ---
-## Team Members
-
-This project was developed collaboratively by:
-
-- Yateen  
-- Kashish  
-- Yash  
-- Sunny  
-- Nidhish  
-- Krishna  
----
 ### Launch Instructions
 
 1. Open your terminal and navigate to the project directory.
